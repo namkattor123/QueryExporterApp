@@ -1,0 +1,8 @@
+Manifest-Version: 1.0
+Ant-Version: Apache Ant 1.6.5
+Created-By: 14.0-b16 (Sun Microsystems Inc.)
+Main-Class: com.viettel.security.Cypher194
+Class-Path: lib/bcprov-jdk16-141.jar lib/commons-codec-1.3.jar lib/log
+ 4j-1.2.15.jar lib/utils.jar
+X-COMMENT: Main-Class will be added automatically by build
+
