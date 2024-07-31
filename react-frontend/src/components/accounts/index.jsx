@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import { Button, Flex, Modal } from 'antd';
+import { Modal } from 'antd';
 import { useHistory } from "react-router-dom";
 import TableComponent from '../table';
 import UserModal from './modal';
@@ -8,19 +8,20 @@ import RenderTextInTable from '../table/RenderTextInTable';
 import RendertTagInTable from '../table/RenderTagInTable';
 import RenderActionInTable from '../table/RenderActionInTable';
 import { deleteUser, getUsers } from '../../services/UserService';
+import CustomAddAndDeleteButton from '../button/CustomAddAndDeleteBtn';
 
 const ListUserComponent = () => {
     const { confirm } = Modal;
     const history = useHistory();   
     const [state, setState] = useState({
         users: [],
-        selectedRows: [],
         refresh: false,
         isOpenConfirmModal: false,
         isUserModalOpen: false,
         editable: false,
         userSelected: null
     })
+    const [selectedRows, setSelectedRows] = useState([]);
 
     const columns = [
         {
@@ -125,21 +126,21 @@ const ListUserComponent = () => {
         if (id) {
             await deleteUser(id, localStorage.getItem('token'));
         } else {
-            for (let i = 0; i < state.selectedRows.length; i++) {
-                promiseArr.push(deleteUser(state.selectedRows[i] ,localStorage.getItem('token')));
+            for (let i = 0; i < selectedRows.length; i++) {
+                promiseArr.push(deleteUser(selectedRows[i] ,localStorage.getItem('token')));
             }
             await Promise.all(promiseArr);
         }
         setState({
             ...state, 
             refresh: !state.refresh,
-            selectedRows: []
         });
     }
 
     useEffect(() => {
         getUsers(localStorage.getItem('token')).then((res) => {
             setState({ ...state, users: res.data});
+            setSelectedRows([]);
         }).catch(error => {
             if (error.response.status === 403) {
                 history.push("/not-authorized");
@@ -153,19 +154,17 @@ const ListUserComponent = () => {
                 usersState={state}
                 setUsersState={setState}
             />
-            <Flex justify='space-between' align='center'>
-                <button className="btn btn-primary mb-2" onClick={() => handleClickAddAndEdit()}> Add User</button>
-                {state.selectedRows.length > 0 &&
-                    <Button danger className="mb-2" onClick={() => handleClickDelete()}>
-                        Delete
-                    </Button>
-                }
-            </Flex>
+            <CustomAddAndDeleteButton 
+                handleClickAddAndEdit={handleClickAddAndEdit}
+                handleClickDelete={handleClickDelete}
+                addType="Account"
+                selectedRows={selectedRows}
+            />
             <TableComponent 
                 columns={columns}
                 data={state.users}
-                state={state}
-                setState={setState}
+                selectedRows={selectedRows}
+                setSelectedRows={setSelectedRows}
             />
         </div>
     )

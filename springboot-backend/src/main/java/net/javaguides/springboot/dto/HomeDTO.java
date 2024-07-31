@@ -1,24 +1,50 @@
 package net.javaguides.springboot.dto;
 
+import java.math.BigInteger;
+
 public class HomeDTO {
-    public int userDBs;
+    private String userName;
 
-    public int allDBs;
+    private int databases;
+    private int metrics;
+    private int queries;
 
-    public int userMetrics;
+    public HomeDTO(String userName, int databases, int metrics, int queries) {
+        this.userName = userName;
+        this.databases = databases;
+        this.metrics = metrics;
+        this.queries = queries;
+    }
 
-    public long allMetrics;
+    public String getUserName() {
+        return userName;
+    }
 
-    public long userQueries;
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
 
-    public long allQueries;
+    public int getDatabases() {
+        return databases;
+    }
 
-    public HomeDTO(int userDBs, int allDBs, int userMetrics, long allMetrics, long userQueries, long allQueries) {
-        this.userDBs = userDBs;
-        this.allDBs = allDBs;
-        this.userMetrics = userMetrics;
-        this.allMetrics = allMetrics;
-        this.userQueries = userQueries;
-        this.allQueries = allQueries;
+    public void setDatabases(int databases) {
+        this.databases = databases;
+    }
+
+    public int getMetrics() {
+        return metrics;
+    }
+
+    public void setMetrics(int metrics) {
+        this.metrics = metrics;
+    }
+
+    public int getQueries() {
+        return queries;
+    }
+
+    public void setQueries(int queries) {
+        this.queries = queries;
     }
 }

@@ -57,20 +57,20 @@ public class DatabaseController {
 		if(databaseRepository.existsByName(split[5])){
 			throw new IllegalArgumentException("Item with this name already exists.");
 		}
-			Database database = new Database();
-			database.setLink(databaseDTO.getLink());
-			database.setDsn(PassTranformer.encrypt(linkDB));
+		Database database = new Database();
+		database.setLink(databaseDTO.getLink());
+		database.setDsn(PassTranformer.encrypt(linkDB));
 
-			String label = "hostname: "+split[3] + "\\n" + "serviceCode: "+databaseDTO.getServiceCode();
-			database.setLabel(label +  "\\n" + databaseDTO.getLabel());
-			database.setHostName(split[3]);
-			database.setName(split[5]);
-			database.setServiceCode(databaseDTO.getServiceCode());
-			database.setAutoCommit(databaseDTO.autoCommit);
-			database.setKeepConnect(databaseDTO.keepConnect);
-			UserEntity user = userRepository.findByUsername(username).get();
-			database.setUser(user);
-			return databaseRepository.save(database);
+		String label = "hostname: "+split[3] + "\\n" + "serviceCode: "+databaseDTO.getServiceCode();
+		database.setLabel(label +  "\\n" + databaseDTO.getLabel());
+		database.setHostName(split[3]);
+		database.setName(split[5]);
+		database.setServiceCode(databaseDTO.getServiceCode());
+		database.setAutoCommit(databaseDTO.autoCommit);
+		database.setKeepConnect(databaseDTO.keepConnect);
+		UserEntity user = userRepository.findByUsername(username).get();
+		database.setUser(user);
+		return databaseRepository.save(database);
 	}
 	
 	// get database by id rest api

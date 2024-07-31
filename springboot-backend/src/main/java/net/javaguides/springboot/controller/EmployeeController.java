@@ -12,6 +12,7 @@ import net.javaguides.springboot.repository.UserRepository;
 import net.javaguides.springboot.security.JWTGenerator;
 import org.springframework.http.HttpStatus;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -131,21 +132,30 @@ public class EmployeeController {
 		return yamlData;
 	}
 	@GetMapping("/home")
-	public HomeDTO homeView(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
+	public List<HomeDTO> homeView(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
 
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
 		}
 		String username = tokenGenerator.getUsernameFromJWT(authorizationHeader);
 
-		List<Database> allDBbyUser = databaseRepository.findByUsernameFromJoinedTables(username);
-		List<Metric> allMetricByUser = metricRepository.findByUsernameFromJoinedTables(username);
-		List<Queries> allQueriesByUser = queryRepository.findByUsernameFromJoinedTables(username);
-		long allDBs = databaseRepository.count();
-		long allMetrics = metricRepository.count();
-		long allQueries = queryRepository.count();
-		HomeDTO homeData = new HomeDTO(allDBbyUser.size(), allMetricByUser.size(),allQueriesByUser.size(),allDBs,allMetrics,allQueries);
-		return homeData;
+//		List<Database> allDBbyUser = databaseRepository.findByUsernameFromJoinedTables(username);
+//		List<Metric> allMetricByUser = metricRepository.findByUsernameFromJoinedTables(username);
+//		List<Queries> allQueriesByUser = queryRepository.findByUsernameFromJoinedTables(username);
+//		long allDBs = databaseRepository.count();
+//		long allMetrics = metricRepository.count();
+//		long allQueries = queryRepository.count();
+//		HomeDTO homeData = new HomeDTO(allDBbyUser.size(), allMetricByUser.size(),allQueriesByUser.size(),allDBs,allMetrics,allQueries);
+
+		List<UserEntity> users = userRepository.findAll();
+		List<HomeDTO> data = new ArrayList<>();
+		for (UserEntity user : users) {
+			List<Database> allDBbyUser = databaseRepository.findByUsernameFromJoinedTables(user.getUsername());
+			List<Metric> allMetricByUser = metricRepository.findByUsernameFromJoinedTables(user.getUsername());
+			List<Queries> allQueriesByUser = queryRepository.findByUsernameFromJoinedTables(user.getUsername());
+			data.add(new HomeDTO(user.getUsername(), allDBbyUser.size(), allMetricByUser.size(), allQueriesByUser.size()));
+		}
+		return data;
 	}
 	@PostMapping("/upload-yaml")
 	ResponseEntity<String> uploadYamlFile(@RequestHeader("Authorization") String authorizationHeader,@RequestParam("file") MultipartFile file) throws Exception {

@@ -46,7 +46,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/v1/upload-yaml").permitAll()
-                .antMatchers("/**/admin/**").hasAuthority("ADMIN")
+                .antMatchers("/api/admin/**").hasAuthority("ADMIN")
 //                .antMatchers(HttpMethod.PUT, "/api/v1/**").hasAuthority("ADMIN")
 //                .antMatchers(HttpMethod.DELETE, "/api/v1/**").hasAuthority("ADMIN")
 //                .anyRequest().authenticated();

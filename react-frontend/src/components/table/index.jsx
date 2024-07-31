@@ -1,8 +1,9 @@
-import React from "react";
-import { Button, Table } from "antd";
+import React, { useEffect, useState } from "react";
+import { Button, Pagination, Table } from "antd";
 
 const TableComponent = (props) => {
-    const {columns, data, setSelectedRows} = props;
+    const {columns, setSelectedRows, state, setState} = props;
+    const [data, setData] = useState([]);
 
     const rowSelection = {
         onChange: (selectedRowKeys) => {
@@ -10,20 +11,33 @@ const TableComponent = (props) => {
         }
     };
 
+    const handleChangePage = (e) => {
+        setState({...state, page: e})
+    }
+
+    useEffect(() => {
+        setData(state.data?.slice(state.page, state.rowsPerPage));
+    }, [state.page])
+
     return (
-        <div>
+        <div className="w-100">
             <Table 
                 rowKey={(record) => record?.id}
+                className="mb-2"
                 rowSelection={{
                     type: 'checkbox',
                     ...rowSelection,
                 }}
                 columns={columns}
-                dataSource={data}
+                dataSource={state.displayData}
                 bordered
-                pagination={{
-                    hideOnSinglePage: true
-                }}
+                pagination={false}
+            />
+            <Pagination
+                className="d-flex justify-content-end" 
+                current={state.page}
+                total={state.databases.length} 
+                onChange={handleChangePage}
             />
         </div>
     )

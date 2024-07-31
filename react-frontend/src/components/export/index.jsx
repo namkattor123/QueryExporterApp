@@ -2,31 +2,38 @@ import React, { Component} from 'react'
 import DatabaseService from '../../services/DatabaseService'
 import MetricService from '../../services/MetricService'
 import QueryService from '../../services/QueryService'
-import HomeService from '../../services/HomeService'
-import { BsPlus, BsList , BsDownload,BsUpload, BsEye } from 'react-icons/bs';
+import { BsDownload } from 'react-icons/bs';
 import ShowMore from '../ShowMore'
-import { Card, Col, Row, Avatar, Progress, Space} from 'antd';
-import {
-  DatabaseOutlined,
-  BarChartOutlined,
-  MonitorOutlined,
-} from '@ant-design/icons';
 import BulkImportForm from '../home/BulkImportForm'
+const yaml = require('js-yaml');
 
-class HomeComponent2 extends Component {
+class ExportPages extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            data: '',
+            databases : [],
+            metrics: [],
+            queries: [],
+            yaml:''
         }
+        this.addDatabase = this.addDatabase.bind(this);
+        this.addQuery = this.addQuery.bind(this);
+        this.addMetric = this.addMetric.bind(this);
         this.downloadYaml = this.downloadYaml.bind(this);
+        this.viewDatabase = this.viewDatabase.bind(this);
+        this.viewMetric = this.viewMetric.bind(this);
+        this.viewQuery = this.viewQuery.bind(this);
     }
 
     componentDidMount(){
-        HomeService.homeView(localStorage.getItem('token')).then((res) => {
-            this.setState({data: res.data});
-            console.log("Data in react ");
-            console.log(this.state.data);
+        QueryService.getQueries(localStorage.getItem('token')).then((res) => {
+            this.setState({queries:res.data});
+        });
+        DatabaseService.getDatabases(localStorage.getItem('token')).then((res) => {
+            this.setState({databases:res.data});
+        });
+        MetricService.getMetrics(localStorage.getItem('token')).then((res) => {
+            this.setState({metrics:res.data});
         });
     }
     downloadYaml = (e) =>  {
@@ -38,7 +45,6 @@ class HomeComponent2 extends Component {
           'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json',
           'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Headers': 'Origin, X-Requested-With, Content-Type, Accept'
           // Add any other headers as needed
         },
       }) // Replace with your API endpoint
@@ -65,8 +71,8 @@ class HomeComponent2 extends Component {
       e.preventDefault();
       return (
         <div>
-          <h1>Your React App</h1>
-          <BulkImportForm />
+        <h1>Your React App</h1>
+        <BulkImportForm />
         </div>
       );
     }
@@ -96,51 +102,106 @@ class HomeComponent2 extends Component {
 //           console.error('There was a problem with the fetch operation:', error);
 //         });
 //     }
-  render() {
-      const { Meta } = Card;
-      return (
-      <div>
-        <Row gutter={16}>
-          <Col span={8}>
-            <Card bordered={false} extra={<DatabaseOutlined/>} title="Databases">
-              <span> DBs by user: {this.state.data.userDBs}</span>
-              <span> DBs : {this.state.data.allDBs}</span>
-                <Space wrap>
-                  <Progress type="circle" percent={30} size={80} />
-                  <Progress type="circle" percent={70} size={80} />
-                  <Progress type="circle" percent={100} size={80} />
-                </Space>
-            </Card>
-          </Col>
-          <Col span={8}>
-            <Card title="Metrics" bordered={false} extra={<BarChartOutlined/>}>
-              <span> Metrics by user: {this.state.data.userMetrics}</span>
-              <span> Metrics : {this.state.data.allMetrics}</span>
-                <Space wrap>
-                  <Progress type="circle" percent={30} size={80} />
-                  <Progress type="circle" percent={70} size={80} />
-                  <Progress type="circle" percent={100} size={80} />
-                </Space>
-            </Card>
-          </Col>
-          <Col span={8}>
-            <Card title="Queries" bordered={false} extra={<MonitorOutlined/>}>
-              <span> Queries by user: {this.state.data.userQueries}</span>
-              <span> Queries : {this.state.data.allQueries}</span>
-                <Space wrap>
-                  <Progress type="circle" percent={30} size={80} />
-                  <Progress type="circle" percent={70} size={80} />
-                  <Progress type="circle" percent={100} size={80} />
-                </Space>
-            </Card>
-          </Col>
-        </Row>
-        <div>
-          <BulkImportForm />
-        </div>
-      </div>
-    )
-  }
+    addQuery(){
+        this.props.history.push('/add-query/_add');
+    }
+    addMetric(){
+        this.props.history.push('/add-metric/_add');
+    }
+    addDatabase(){
+        this.props.history.push('/add-database/_add');
+    }
+    viewDatabase(){
+        this.props.history.push('/databases');
+    }
+    viewMetric(){
+        this.props.history.push('/metrics');
+    }
+    viewQuery(){
+        this.props.history.push('/queries');
+    }
+    render() {
+        return (
+            <div class="row">
+              <div class="col-sm-4">
+                <h2 className="text-center">Databases List</h2>
+                    <table className = "table table-striped table-bordered">
+                        <thead>
+                           <tr>
+                              <th> Name</th>
+                              <th> HostName</th>
+                              <th> Service Code</th>
+                           </tr>
+                        </thead>
+                        <tbody>
+                            {
+                                this.state.databases.map(
+                                    database =>
+                                    <tr key = {database.id}>
+                                        <td> {database.name} </td>
+                                        <td> {database.hostName}</td>
+                                        <td> <ShowMore text={database.serviceCode} maxLength={5} /></td>
+                                    </tr>
+                                )
+                            }
+                        </tbody>
+                    </table>
+              </div>
+
+              <div class="col-sm-4">
+                <h2 className="text-center">Metrics List</h2>
+                <table className = "table table-striped table-bordered">
+                    <thead>
+                       <tr>
+                          <th> Name</th>
+                          <th> Type</th>
+                          <th> Label</th>
+                       </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            this.state.metrics.map(
+                                metric =>
+                                <tr key = {metric.id}>
+                                    <td> <ShowMore text={metric.name} maxLength={11} /> </td>
+                                    <td> {metric.type}</td>
+                                    <td> {metric.label}</td>
+                                </tr>
+                            )
+                        }
+                    </tbody>
+                </table>
+              </div>
+              <div class="col-sm-4">
+                <h2 className="text-center">Queries List</h2>
+                <table className = "table table-striped table-bordered">
+                    <thead>
+                       <tr>
+                          <th> Name</th>
+                          <th> Database</th>
+                          <th> Metric</th>
+                       </tr>
+                    </thead>
+                    <tbody>
+                        {
+                            this.state.queries.map(
+                                query =>
+                                <tr key = {query.id}>
+                                    <td> <ShowMore text={query.name} maxLength={11} /> </td>
+                                    <td> {query.databases}</td>
+                                    <td> <ShowMore text={query.metrics} maxLength={11} /> </td>
+                                </tr>
+                            )
+                        }
+                    </tbody>
+                </table>
+              </div>
+                     <div>
+                        <button className="btn btn-success" onClick={this.downloadYaml}><BsDownload /></button>
+                     </div>
+            </div>
+        )
+    }
 }
 
-export default HomeComponent2;
+export default ExportPages;

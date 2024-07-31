@@ -41,13 +41,28 @@ export const convertKeyValueToString = (arr) => {
   return result;
 }
 
+export const convertToSeriesData = (type, usersData) => {
+  const data = usersData?.map(item => item[type])
+  return {
+    name: type,
+    data: data
+  }
+}
+
 export const filterData = (nameArr, dataArr) => {
   return dataArr.filter(item => nameArr.includes(item.name));
+}
+
+export const fileterUsername = (arr) => {
+  return arr?.map(item => item.userName);
 }
 
 export const headers = (token) => {
     return {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Methods': 'OPTIONS, DELETE, POST, GET, PATCH, PUT',
     }
 }

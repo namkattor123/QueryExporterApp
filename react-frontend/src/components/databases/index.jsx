@@ -12,7 +12,9 @@ const ListDatabaseComponent = () => {
     const { confirm } = Modal;
     const [state, setState] = useState({
         databases: [],
-        // selectedRows: [],
+        displayData: [],
+        page: 0,
+        rowsPerPage: 5,
         refresh: false,
         isOpenConfirmModal: false,
         isDatabaseModalOpen: false,
@@ -176,10 +178,19 @@ const ListDatabaseComponent = () => {
 
     useEffect(() => {
         DatabaseService.getDatabases(localStorage.getItem('token')).then((res) => {
-            setState({...state, databases: res.data});
+            setState({
+                ...state, 
+                databases: res.data,
+            });
         })
         setSelectedRows([]);
     }, [state.refresh])
+
+    useEffect(() => {
+        setState({
+            ...state,
+        })
+    }, [state.page])
 
     return (
         <>
@@ -195,9 +206,10 @@ const ListDatabaseComponent = () => {
             />
             <TableComponent 
                 columns={columns}
-                data={state.databases}
                 setSelectedRows={setSelectedRows}
                 selectedRows={selectedRows}
+                state={state}
+                setState={setState}
             />
         </>
     )

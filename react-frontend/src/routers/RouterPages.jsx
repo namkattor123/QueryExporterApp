@@ -1,9 +1,9 @@
 import React from 'react';
 import {BrowserRouter as Router, Route, Redirect, Switch } from 'react-router-dom'
 import PrivateRoute from './PrivateRoute';
-import DashBoard from '../components/home/DashBoard';
 import LoginPage from '../components/login';
 import RegisterPage from '../components/register';
+import DashBoard from '../components/dashboard';
 
 const RouterPages = () => {
     return (
