@@ -12,7 +12,6 @@ import net.javaguides.springboot.repository.UserRepository;
 import net.javaguides.springboot.security.JWTGenerator;
 import org.springframework.http.HttpStatus;
 
-import java.nio.file.StandardOpenOption;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,10 +83,10 @@ public class EmployeeController {
 		queryExport.put("queries",finalYamlExport.getQueries());
 		try(FileWriter writer = new FileWriter(new File(currentPath))) {
 			yaml.dump(dbExport , writer);
-			dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.AUTO);
-			Yaml yaml2 = new Yaml(dumperOptions);
-			yaml2.dump(metricExport, writer);
-			yaml2.dump(queryExport, writer);
+//			dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.AUTO);
+//			Yaml yaml2 = new Yaml(dumperOptions);
+			yaml.dump(metricExport, writer);
+			yaml.dump(queryExport, writer);
 			System.out.println(" Export to yaml success " );
 		} catch (IOException e) {
 			System.out.println(" Export to yaml failed " + e.toString() );
@@ -149,13 +148,13 @@ public class EmployeeController {
 		return homeData;
 	}
 	@PostMapping("/upload-yaml")
-	ResponseEntity<String> uploadYamlFile(@RequestHeader("Authorization") String authorizationHeader,@RequestParam("file") MultipartFile file)  {
+	ResponseEntity<String> uploadYamlFile(@RequestHeader("Authorization") String authorizationHeader,@RequestParam("file") MultipartFile file) throws Exception {
 		if (file.isEmpty()) {
 			return new ResponseEntity<>("File is empty", HttpStatus.BAD_REQUEST);
 		}
 
 		try {
-			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+				if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 				authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
 			}
 			String username = tokenGenerator.getUsernameFromJWT(authorizationHeader);

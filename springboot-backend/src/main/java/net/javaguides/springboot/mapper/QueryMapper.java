@@ -35,16 +35,19 @@ public class QueryMapper {
                 queryFieldMap.put("timeout", queries.get(i).getTimeout());
             }
             if (queries.get(i).getDatabases() != null) {
-                queryFieldMap.put("databases", queries.get(i).getDatabases().split("\\\\s*,\\\\s*"));
+                String[] databasesArray = queries.get(i).getDatabases().split("\\s*,\\s*");
+                queryFieldMap.put("databases", databasesArray);
             }
             if (queries.get(i).getMetrics() != null) {
-                queryFieldMap.put("metrics", queries.get(i).getMetrics().split("\\\\s*,\\\\s*"));
+                String[] metricsArray = queries.get(i).getMetrics().split("\\s*,\\s*");
+                queryFieldMap.put("metrics", metricsArray);
             }
             if (queries.get(i).getSql() != null) {
                 queryFieldMap.put("sql", queries.get(i).getSql());
             }
             if (queries.get(i).getParameters() != null) {
-                queryFieldMap.put("parameters", queries.get(i).getParameters().split("\\\\s*,\\\\s*"));
+                String[] parametersArray = queries.get(i).getParameters().split("\\s*,\\s*");
+                queryFieldMap.put("parameters", parametersArray);
             }
             queryMap.put(queries.get(i).getName(), queryFieldMap);
         }

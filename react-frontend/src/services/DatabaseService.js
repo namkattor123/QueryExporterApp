@@ -1,57 +1,36 @@
 import axios from 'axios';
+import { headers } from '../utils';
 const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
 class DatabaseService {
 
     getDatabases(token){
-        return axios.get(`${apiBaseUrl}/databases`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          // Add any other headers as needed
-        },
+      return axios.get(`${apiBaseUrl}/databases`, {
+        headers: headers(token)
       });
     }
 
-    createDatabase(database,token){
+    createDatabase(database, token){
         return axios.post(`${apiBaseUrl}/databases`, database,{
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          // Add any other headers as needed
-        },
-
-
+        headers: headers(token)
       });
     }
 
-    getDatabaseById(databaseId,token){
+    getDatabaseById(databaseId, token){
         return axios.get(`${apiBaseUrl}/databases/${databaseId}`,{
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          // Add any other headers as needed
-        },
+        headers: headers(token)
 
       });
     }
-
-    updateDatabase(database, databaseId,token){
+ 
+    updateDatabase(database, databaseId, token){
         return axios.put(`${apiBaseUrl}/databases/${databaseId}`, database,{
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          // Add any other headers as needed
-        },
+        headers: headers(token)
       });
     }
 
-    deleteDatabase(databaseId,token){
+    deleteDatabase(databaseId, token){
         return axios.delete(`${apiBaseUrl}/databases/${databaseId}`,{
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          // Add any other headers as needed
-        },
+        headers: headers(token)
       });
     }
 }

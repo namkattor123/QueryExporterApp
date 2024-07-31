@@ -1,6 +1,7 @@
 package net.javaguides.springboot.model;
 
 import javax.persistence.*;
+import java.sql.Date;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,7 +16,18 @@ public class UserEntity {
     private String username;
     private String password;
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @Column(name = "full_name")
+    private String fullName;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "email")
+    private String email;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.MERGE)
     @JoinTable(name = "user_roles", joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
     private List<Role> roles = new ArrayList<>();
@@ -23,10 +35,14 @@ public class UserEntity {
     public UserEntity() {
     }
 
-    public UserEntity(Long id, String username, String password, List<Role> roles) {
+    public UserEntity(Long id, String username, String password, List<Role> roles, String fullName, String phoneNumber, String address, String email) {
         this.id = id;
         this.username = username;
         this.password = password;
+        this.fullName = fullName;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
         this.roles = roles;
     }
 
@@ -60,5 +76,37 @@ public class UserEntity {
 
     public void setRoles(List<Role> roles) {
         this.roles = roles;
+    }
+
+    public String getFullName() {
+        return fullName;
+    }
+
+    public String getPhoneNumber() {
+        return phoneNumber;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
+
+    public void setPhoneNumber(String phoneNumber) {
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

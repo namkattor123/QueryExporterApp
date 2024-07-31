@@ -1,7 +1,5 @@
 package net.javaguides.springboot.controller;
 
-
-
 import com.viettel.security.PassTranformer;
 import net.javaguides.springboot.dto.DatabaseDTO;
 import net.javaguides.springboot.exception.ResourceNotFoundException;
@@ -19,6 +17,8 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+@CrossOrigin
 @RestController
 @RequestMapping("/api/v1")
 public class DatabaseController {
@@ -60,15 +60,16 @@ public class DatabaseController {
 			Database database = new Database();
 			database.setLink(databaseDTO.getLink());
 			database.setDsn(PassTranformer.encrypt(linkDB));
-			database.setLabel("hostname: "+split[3] + " serviceCode: "+databaseDTO.getServiceCode());
+
+			String label = "hostname: "+split[3] + "\\n" + "serviceCode: "+databaseDTO.getServiceCode();
+			database.setLabel(label +  "\\n" + databaseDTO.getLabel());
 			database.setHostName(split[3]);
 			database.setName(split[5]);
 			database.setServiceCode(databaseDTO.getServiceCode());
-			database.setAutoCommit(databaseDTO.keepConnect);
-			database.setKeepConnect(databaseDTO.autoCommit);
+			database.setAutoCommit(databaseDTO.autoCommit);
+			database.setKeepConnect(databaseDTO.keepConnect);
 			UserEntity user = userRepository.findByUsername(username).get();
 			database.setUser(user);
-
 			return databaseRepository.save(database);
 	}
 	
@@ -93,6 +94,8 @@ public class DatabaseController {
 		database.setLink(databaseDetails.getLink());
 		database.setHostName(split[3]);
 		database.setName(split[5]);
+		database.setAutoCommit(databaseDetails.getAutoCommit());
+		database.setKeepConnect(databaseDetails.getKeepConnect());
 		database.setServiceCode(databaseDetails.getServiceCode());
 		Database updatedDatabase = databaseRepository.save(database);
 		return ResponseEntity.ok(updatedDatabase);

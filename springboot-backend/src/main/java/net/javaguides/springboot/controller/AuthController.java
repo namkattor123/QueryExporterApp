@@ -3,6 +3,7 @@ package net.javaguides.springboot.controller;
 import net.javaguides.springboot.dto.AuthResponseDTO;
 import net.javaguides.springboot.dto.LoginDTO;
 import net.javaguides.springboot.dto.RegisterDto;
+import net.javaguides.springboot.model.Database;
 import net.javaguides.springboot.model.Role;
 import net.javaguides.springboot.model.UserEntity;
 import net.javaguides.springboot.repository.RoleRepository;
@@ -20,7 +21,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -53,44 +56,57 @@ public class AuthController {
                         loginDto.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = jwtGenerator.generateToken(authentication);
-        return new ResponseEntity<>(new AuthResponseDTO(token), HttpStatus.OK);
+        UserEntity user = userRepository.findByUsername(loginDto.getUsername()).get();
+        return new ResponseEntity<>(new AuthResponseDTO(token, user), HttpStatus.OK);
     }
 
     @PostMapping("register")
     public ResponseEntity<String> register(@RequestBody RegisterDto registerDto) {
         if (userRepository.existsByUsername(registerDto.getUsername())) {
-            return new ResponseEntity<>("Username is taken!", HttpStatus.BAD_REQUEST);
+            throw new IllegalArgumentException("Username has been registered!");
         }
         LOGGER.info("Register user: ", registerDto.getUsername());
         UserEntity user = new UserEntity();
         user.setUsername(registerDto.getUsername());
-        user.setPassword(passwordEncoder.encode((registerDto.getPassword())));
+        user.setPassword(passwordEncoder.encode(registerDto.getPassword()));
         Role roles = roleRepository.findByName("USER").get();
         LOGGER.info("Find Role with User role");
-
         user.setRoles(Collections.singletonList(roles));
+        user.setEmail(registerDto.getEmail());
+        user.setFullName(registerDto.getFullName());
+        user.setPhoneNumber(registerDto.getPhoneNumber());
+        user.setAddress(registerDto.getAddress());
 
         userRepository.save(user);
 
         return new ResponseEntity<>("User registered success!", HttpStatus.OK);
     }
     @PostMapping("register/admin")
-    public ResponseEntity<String> registerAdmin(@RequestBody RegisterDto registerDto) {
+    public ResponseEntity<UserEntity> registerAdmin(@RequestBody RegisterDto registerDto) {
         if (userRepository.existsByUsername(registerDto.getUsername())) {
-            return new ResponseEntity<>("Username is taken!", HttpStatus.BAD_REQUEST);
+            throw new IllegalArgumentException("Username has been registered!");
         }
         LOGGER.info("Register user: ", registerDto.getUsername());
         UserEntity user = new UserEntity();
         user.setUsername(registerDto.getUsername());
         user.setPassword(passwordEncoder.encode((registerDto.getPassword())));
 
-        Role roles = roleRepository.findByName("ADMIN").get();
-        LOGGER.info("Register user:user user");
+        List<String> roles = registerDto.getRoles();
+        List<Role> userRoles = new ArrayList<>();
+        for (String role : roles) {
+            System.out.println("role: " + role);
+            Role userRole = roleRepository.findByName(role).get();
+            userRoles.add(userRole);
+        }
+        user.setRoles(userRoles);
 
-        user.setRoles(Collections.singletonList(roles));
+//        Role roles = roleRepository.findByName("ADMIN").get();
+//        LOGGER.info("Register user:user user");
+//
+//        user.setRoles(Collections.singletonList(roles));
 
         userRepository.save(user);
 
-        return new ResponseEntity<>("User registered success!", HttpStatus.OK);
+        return ResponseEntity.ok(user);
     }
 }

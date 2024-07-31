@@ -9,10 +9,6 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>net.javaguides</groupId>
-	<artifactId>springboot-backend</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
-	<name>springboot-backend</name>
-	<description>Demo project for Spring Boot</description>
 	<dependencies>
 		<!-- https://mvnrepository.com/artifact/org.springframework.security/spring-security-config -->
 		<dependency>
@@ -74,11 +70,11 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-        <dependency>
-            <groupId>com.fasterxml.jackson.dataformat</groupId>
-            <artifactId>jackson-dataformat-yaml</artifactId>
-            <version>2.14.2</version>
-        </dependency>
+		<dependency>
+			<groupId>com.fasterxml.jackson.dataformat</groupId>
+			<artifactId>jackson-dataformat-yaml</artifactId>
+			<version>2.14.2</version>
+		</dependency>
 		<dependency>
 			<groupId>commons-io</groupId>
 			<artifactId>commons-io</artifactId>
@@ -92,8 +88,14 @@
 			<groupId>com.viettel.security</groupId>
 			<artifactId>viettelsecurity</artifactId>
 			<version>1.0.0</version>
+			<scope>system</scope>
+			<systemPath>${project.basedir}/src/main/resources/viettelsecurity.jar</systemPath>
 		</dependency>
 	</dependencies>
+	<artifactId>springboot-backend</artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<name>springboot-backend</name>
+	<description>Demo project for Spring Boot</description>
 	<build>
 		<plugins>
 			<plugin>

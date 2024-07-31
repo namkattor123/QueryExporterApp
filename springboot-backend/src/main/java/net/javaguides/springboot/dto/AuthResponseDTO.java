@@ -1,14 +1,19 @@
 package net.javaguides.springboot.dto;
 
+import net.javaguides.springboot.model.Role;
+import net.javaguides.springboot.model.UserEntity;
 
-
+import java.util.List;
 
 public class AuthResponseDTO {
     private String accessToken;
     private String tokenType = "Bearer ";
 
-    public AuthResponseDTO(String accessToken) {
+    private UserEntity user;
+
+    public AuthResponseDTO(String accessToken, UserEntity user) {
         this.accessToken = accessToken;
+        this.user = user;
     }
 
     public String getAccessToken() {
@@ -25,5 +30,13 @@ public class AuthResponseDTO {
 
     public void setTokenType(String tokenType) {
         this.tokenType = tokenType;
+    }
+
+    public UserEntity getUser() {
+        return user;
+    }
+
+    public void setUser(UserEntity user) {
+        this.user = user;
     }
 }

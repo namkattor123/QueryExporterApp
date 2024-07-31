@@ -1,49 +1,42 @@
 import axios from 'axios';
-const apiBaseUrl = process.env.REACT_APP_API_AUTHENTICATE_BASE_URL;
-class UserService {
+import { headers } from '../utils';
 
-    getUsers(token){
-        return axios.get(`${apiBaseUrl}/user`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          // Add any other headers as needed
-        },
-      });
-    }
+const apiBaseUrl = process.env.REACT_APP_ADMIN_API_BASE_URL;
+const apiAuthenticateUrl = process.env.REACT_APP_API_AUTHENTICATE_BASE_URL;
 
-
-
-    getUserById(userId,token){
-        return axios.get(`${apiBaseUrl}/users/${userId}`,{
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          // Add any other headers as needed
-        },
-
-      });
-    }
-
-    updateUser(user, userId,token){
-        return axios.put(`${apiBaseUrl}/users/${userId}`, user,{
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          // Add any other headers as needed
-        },
-      });
-    }
-
-    deleteUser(userId,token){
-        return axios.delete(`${apiBaseUrl}/users/${userId}`,{
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json',
-          // Add any other headers as needed
-        },
-      });
-    }
+export const getUsers = async (token) =>{
+  return await axios.get(`${apiBaseUrl}/users`, {
+    headers: headers(token)
+  });
 }
 
-export default new UserService()
+export const getUserById = async (userId, token) =>{
+  return await axios.get(`${apiBaseUrl}/user/${userId}`,{
+    headers: headers(token)
+  });
+}
+
+export const registerUser = async (user, token) => {
+  const response = await axios.post(`${apiAuthenticateUrl}/register/admin`, user, {
+    headers: {
+      'Authorization': `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'Content-Type',
+      'Access-Control-Allow-Methods': 'OPTIONS, DELETE, POST, GET, PATCH, PUT',
+    },
+  });
+  return response;
+}
+
+export const updateUser = async (user, userId, token) => {
+  return await axios.put(`${apiBaseUrl}/user/${userId}`, user,{
+    headers: headers(token)
+  });
+}
+
+export const deleteUser = async (userId, token) => {
+  return await axios.delete(`${apiBaseUrl}/user/${userId}`,{
+    headers: headers(token)
+  });
+}

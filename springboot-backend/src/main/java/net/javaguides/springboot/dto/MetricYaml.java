@@ -4,11 +4,8 @@ import java.util.ArrayList;
 
 public class MetricYaml {
     public String type;
-
     public String description;
     public String[] label;
-
-
 
     public MetricYaml() {
     }

@@ -3,19 +3,19 @@ package net.javaguides.springboot.controller;
 
 import net.javaguides.springboot.dto.MetricYaml;
 import net.javaguides.springboot.exception.ResourceNotFoundException;
-import net.javaguides.springboot.mapper.DatabaseMapper;
 import net.javaguides.springboot.mapper.MetricMapper;
-import net.javaguides.springboot.model.Database;
 import net.javaguides.springboot.model.Metric;
 import net.javaguides.springboot.model.UserEntity;
 import net.javaguides.springboot.repository.MetricRepository;
 import net.javaguides.springboot.repository.UserRepository;
 import net.javaguides.springboot.security.JWTGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.geo.Metrics;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.annotation.security.RolesAllowed;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,17 +49,19 @@ public class MetricController {
 
 	// create metric rest api
 	@PostMapping("/metrics")
-	public Metric createMetric(@RequestHeader("Authorization") String authorizationHeader,@RequestBody Metric metric) {
-		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-			authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
-		}
-		if(metricRepository.existsByName(metric.getName())){
-			throw new IllegalArgumentException("Item with this name already exists.");
-		}
-		String username = tokenGenerator.getUsernameFromJWT(authorizationHeader);
-		UserEntity user = userRepository.findByUsername(username).get();
-		metric.setUser(user);
-		return metricRepository.save(metric);
+	public Metric createMetric(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Metric metric) {
+			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+				authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
+			}
+			if(metricRepository.existsByName(metric.getName())){
+				throw new IllegalArgumentException("Item with this name already exists.");
+			}
+			String username = tokenGenerator.getUsernameFromJWT(authorizationHeader);
+			UserEntity user = userRepository.findByUsername(username).get();
+			metric.setUser(user);
+			System.out.println("User role: " + user.getRoles().get(0).getName());
+			Metric savedMetric = metricRepository.save(metric);
+			return savedMetric;
 	}
 	
 	// get metric by id rest api

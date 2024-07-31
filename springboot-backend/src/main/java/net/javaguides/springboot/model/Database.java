@@ -140,6 +140,4 @@ public class Database {
 	public void setConnectSQL(String connectSQL) {
 		this.connectSQL = connectSQL;
 	}
-
-
 }

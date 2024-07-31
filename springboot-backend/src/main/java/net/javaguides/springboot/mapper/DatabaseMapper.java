@@ -3,6 +3,7 @@ package net.javaguides.springboot.mapper;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.viettel.security.PassTranformer;
 import net.javaguides.springboot.model.Database;
 import net.javaguides.springboot.model.UserEntity;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +16,7 @@ public class DatabaseMapper {
         for(int i =0 ; i < databases.size() ; i++ ){
             Map<String,Object> dbFieldMap = new LinkedHashMap<String,Object>();
             if(databases.get(i).getDsn() != null){
-                dbFieldMap.put("dsn",databases.get(i).getDsn());
+                dbFieldMap.put("dsn",databases.get(i).getLink());
             }
             if(databases.get(i).getLabel() != null){
                 Map<String,String> labelsFieldMap = new HashMap<String,String>();
@@ -40,7 +41,7 @@ public class DatabaseMapper {
         }
         return dbMap;
     }
-    public List<Database>toModelFromYaml(Map<String,Map<String,Object>> listDBMap, UserEntity user){
+    public List<Database>toModelFromYaml(Map<String,Map<String,Object>> listDBMap, UserEntity user) throws Exception {
         //Map<String,Object> dbMap = new listDBMap.get();
             List<Database> result = new ArrayList<Database>();
             for (String key : listDBMap.keySet()) {
@@ -49,10 +50,50 @@ public class DatabaseMapper {
                 System.out.println("Key: " + key + ", Value: " + value);
                 db.setName(key);
                 if(value.containsKey("dsn")){
-                    db.setDsn(value.get("dsn").toString());
+                    if (value.get("dsn") instanceof LinkedHashMap) {
+                        String dsnStr = "";
+                        Map<String, Object> dsnValues = (Map<String, Object>) value.get("dsn");
+                        if (dsnValues.containsKey("dialect"))
+                            dsnStr += dsnValues.get("dialect").toString() + "://";
+                        if (dsnValues.containsKey("user"))
+                            dsnStr += dsnValues.get("user") + ":";
+                        if (dsnValues.containsKey("password"))
+                            dsnStr += dsnValues.get("password");
+                        if (dsnValues.containsKey("host")){
+//                            db.setLabel("hostname: " + dsnValues.get("host").toString());
+                            db.setHostName(dsnValues.get("host").toString());
+                            dsnStr += "@" + dsnValues.get("host") + ":";
+                        }
+                        if (dsnValues.containsKey("port"))
+                            dsnStr += dsnValues.get("port") + "/";
+                        if (dsnValues.containsKey("database"))
+                            dsnStr += dsnValues.get("database");
+                        db.setLink(dsnStr);
+                        System.out.println("link: " + dsnStr);
+                        db.setDsn(PassTranformer.encrypt(dsnStr));
+                    }
+                    else {
+                        String dsn = value.get("dsn").toString();
+                        db.setLink(dsn);
+                        int start = dsn.indexOf("@") + 1;
+                        int end = dsn.lastIndexOf(":");
+                        db.setHostName(dsn.substring(start, end));
+//                        db.setLabel("hostname: " + dsn.substring(start, end));
+                        db.setDsn(PassTranformer.encrypt(dsn));
+                    }
                 }
-//                if(value.containsKey("labels")){
-//                    db.setLabel(value.get("labels").toString());
+                if(value.containsKey("labels")){
+                    Map<String, String> labels = (Map<String, String>) value.get("labels");
+                    String labelStr = "";
+                    for (Map.Entry<String,String> entry : labels.entrySet()) {
+                        if (entry.getKey().equals("host")) {
+                            labelStr += "hostname: " + entry.getValue();
+                        } else {
+                            if (entry.getKey().equals("services_code")) db.setServiceCode(entry.getValue());
+                            labelStr += "\\n" + entry.getKey() + ": " + entry.getValue();
+                        }
+                    }
+                    db.setLabel(labelStr);
 //                    ObjectMapper objectMapper = new ObjectMapper();
 //                    try {
 //                        Map<String, String> resultMap = objectMapper.readValue(value.get("labels").toString(), Map.class);
@@ -61,9 +102,6 @@ public class DatabaseMapper {
 //                    } catch (JsonProcessingException e) {
 //                        throw new RuntimeException(e);
 //                    }
-//                }
-                if(value.containsKey("host")){
-                    db.setHostName(value.get("host").toString());
                 }
                 if(value.containsKey("services_code")){
                     db.setServiceCode(value.get("services_code").toString());

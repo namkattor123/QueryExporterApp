@@ -32,20 +32,26 @@ public class MetricMapper {
             if(metrics.get(i).getType() != null){
                 metricFieldMap.put("type",metrics.get(i).getType());
             }
-            if(metrics.get(i).getDescription() != null){
+            if(metrics.get(i).getDescription() != null && !metrics.get(i).getDescription().isEmpty()){
                 metricFieldMap.put("description",metrics.get(i).getDescription());
             }
             if(metrics.get(i).getExpiration() != null){
                 metricFieldMap.put("expiration",metrics.get(i).getExpiration());
             }
-            if(metrics.get(i).getLabels() != null){
-                metricFieldMap.put("labels", Arrays.asList(metrics.get(i).getLabels().split("\\\\s*,\\\\s*")));
+            if(metrics.get(i).getLabels() != null && !metrics.get(i).getLabels().isEmpty()){
+                String[] labelsArray = metrics.get(i).getLabels().split("\\s*,\\s*");
+                metricFieldMap.put("labels", labelsArray);
             }
             if(metrics.get(i).getBuckets() != null){
-                metricFieldMap.put("buckets",Arrays.asList(metrics.get(i).getBuckets().split("\\\\s*,\\\\s*")));
+                String[] strArray = metrics.get(i).getBuckets().split("\\s*,\\s*");
+                Integer[] bucketsArray = Arrays.stream(strArray)
+                        .map(Integer::parseInt)
+                        .toArray(Integer[]::new);
+                metricFieldMap.put("buckets", bucketsArray);
             }
             if(metrics.get(i).getStates() != null){
-                metricFieldMap.put("states",Arrays.asList(metrics.get(i).getStates().split("\\\\s*,\\\\s*")));
+                String[] statesArray = metrics.get(i).getStates().split("\\s*,\\s*");
+                metricFieldMap.put("states", statesArray);
             }
             if(metrics.get(i).getIncrement() != null){
                 metricFieldMap.put("increment",metrics.get(i).getIncrement());

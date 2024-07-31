@@ -6,21 +6,23 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
+import org.springframework.security.config.annotation.method.configuration.GlobalMethodSecurityConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-
 @Configuration
 @EnableWebSecurity
+//@EnableGlobalMethodSecurity(
+//    prePostEnabled = true,
+//    securedEnabled = true,
+//    jsr250Enabled = true
+//)
 public class SecurityConfig {
 
     private JwtAuthEntryPoint authEntryPoint;
@@ -44,8 +46,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests()
                 .antMatchers("/api/auth/**").permitAll()
                 .antMatchers("/api/v1/upload-yaml").permitAll()
-                .antMatchers("/api/admin/**").hasRole("ADMIN")
-                .anyRequest().authenticated();
+                .antMatchers("/**/admin/**").hasAuthority("ADMIN")
+//                .antMatchers(HttpMethod.PUT, "/api/v1/**").hasAuthority("ADMIN")
+//                .antMatchers(HttpMethod.DELETE, "/api/v1/**").hasAuthority("ADMIN")
+//                .anyRequest().authenticated();
                 .anyRequest().permitAll();
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
