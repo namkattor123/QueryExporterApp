@@ -3,7 +3,6 @@ import {
     BarChartOutlined,
     MonitorOutlined,
     HomeOutlined,
-    ExportOutlined,
     UserOutlined,
     LogoutOutlined,
     ExclamationCircleOutlined
@@ -64,11 +63,6 @@ export const navItems = [
   },
   {
     key: '5',
-    icon: <ExportOutlined />,
-    label: 'Export',
-  },
-  {
-    key: '6',
     icon: <UserOutlined />,
     label: 'Accounts',
   },

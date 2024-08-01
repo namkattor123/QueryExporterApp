@@ -23,9 +23,6 @@ const SideBar = () => {
           navigate.push("/queries");
           break;
         case '5':
-          navigate.push("/export");
-          break;
-        case '6':
           navigate.push("/users");
           break;
         default:
