@@ -1,8 +1,8 @@
-import { Button, Col, Flex, Form, Input, Modal, Radio, Row, Typography } from "antd";
+import { Button, Col, Flex, Form, Input, Modal, Radio, Row, Typography, notification } from "antd";
 import React, { useEffect, useState } from "react";
 import DatabaseService from "../../../services/DatabaseService";
 import RenderTextInTable from "../../table/RenderTextInTable";
-import { convertKeyValueToString, convertStringToKeyValueData } from "../../../utils";
+import { convertKeyValueToString, convertStringToKeyValueData, openNotification } from "../../../utils";
 import TableComponent from "../../table";
 import AddLabelModal from "./AddLabelModal";
 
@@ -16,6 +16,8 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
 
     const {editable, databaseSelected, isDatabaseModalOpen, refresh} = props?.databasesState;
     const {databasesState, setDatabasesState} = props;
+
+    const [api, contextHolder] = notification.useNotification();
 
     const columns = [
         {
@@ -33,14 +35,20 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
     ]
 
     const handleOk = async (value) => {
-        const sendValue = {
-            ...value,
-            label: convertKeyValueToString(labels)
-        }
-        if (databaseSelected) {
-            await DatabaseService.updateDatabase(sendValue, database?.id, localStorage.getItem('token'))
-        } else {
-            await DatabaseService.createDatabase(sendValue, localStorage.getItem('token'))
+        try {
+            const sendValue = {
+                ...value,
+                label: convertKeyValueToString(labels)
+            }
+            if (databaseSelected) {
+                await DatabaseService.updateDatabase(sendValue, database?.id, localStorage.getItem('token'));
+                openNotification(api, "success", "Succeed", "Database updated successfully!");
+            } else {
+                await DatabaseService.createDatabase(sendValue, localStorage.getItem('token'));
+                openNotification(api, "success", "Succeed", "Database created successfully!");
+            }
+        } catch (err) {
+            openNotification(api, "error", "Failed", "Updated failed, Something went wrong!");
         }
     }
 
@@ -73,18 +81,22 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
     }
 
     useEffect(() => {
-        if (databaseSelected) {
-            DatabaseService.getDatabaseById(databaseSelected,localStorage.getItem('token')).then( res => {
-                setDatabase({...res.data});
-                form.setFieldsValue({
-                    link: res.data?.link,
-                    connectSql: res.data?.connectSql,
-                    serviceCode: res.data?.serviceCode,
-                    keepConnect: res.data?.keepConnect,
-                    autoCommit: res.data?.autoCommit
+        try {
+            if (databaseSelected) {
+                DatabaseService.getDatabaseById(databaseSelected,localStorage.getItem('token')).then( res => {
+                    setDatabase({...res.data});
+                    form.setFieldsValue({
+                        link: res.data?.link,
+                        connectSql: res.data?.connectSql,
+                        serviceCode: res.data?.serviceCode,
+                        keepConnect: res.data?.keepConnect,
+                        autoCommit: res.data?.autoCommit
+                    })
+                    setLabels(convertStringToKeyValueData(res.data?.label));
                 })
-                setLabels(convertStringToKeyValueData(res.data?.label));
-            })
+            }
+        } catch (error) {
+            openNotification(api, "error", "Failed", "Network error!");
         }
     }, [databaseSelected])
     
@@ -103,6 +115,7 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
             }} 
             onCancel={handleClose}
         >
+            {contextHolder}
             <Form
                 form={form}
                 layout="vertical"
@@ -172,9 +185,8 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
                             </Flex>
                             <TableComponent
                                 columns={columns}
-                                data={labels}
-                                selectedRows={selectedRows}
                                 setSelectedRows={setSelectedRows}
+                                labels={labels}
                             />
                         </Form.Item>
                     </Col>

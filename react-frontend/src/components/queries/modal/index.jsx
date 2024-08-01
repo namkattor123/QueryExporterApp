@@ -1,7 +1,8 @@
-import { Col, Form, Input, Modal, Row, Select } from "antd";
+import { Col, Form, Input, Modal, Row, Select, notification } from "antd";
 import React, { useEffect, useState } from "react";
 import QueryService from "../../../services/QueryService";
-import { convertToSelectOption, filterData } from "../../../utils";
+import { convertToSelectOption, filterData, openNotification } from "../../../utils";
+import { sqlKeywords } from "../../../const";
 
 const QueryModal = (props) => { // queriesState, setQueriesState
     const [form] = Form.useForm();
@@ -9,19 +10,25 @@ const QueryModal = (props) => { // queriesState, setQueriesState
 
     const {editable, querySelected, isQueryModalOpen, refresh} = props?.queriesState;
     const {databaseList, metricList, setQueriesState, queriesState} = props;
-    const sqlKeywords = ['INSERT', 'UPDATE', 'DELETE', 'COMMIT'];
+
+    const [api, contextHolder] = notification.useNotification();
 
     const handleFormSubmit = async (value) => {
-        const sendData = {
-            ...value,
-            databases: filterData(value.databases, databaseList),
-            metrics: filterData(value.metrics, metricList),
-        }
-
-        if (querySelected) {
-            await QueryService.updateQuery(sendData, query?.id, localStorage.getItem('token'))
-        } else {
-            await QueryService.createQuery(sendData, localStorage.getItem('token'))
+        try {
+            const sendData = {
+                ...value,
+                databases: filterData(value.databases, databaseList),
+                metrics: filterData(value.metrics, metricList),
+            }
+            if (querySelected) {
+                await QueryService.updateQuery(sendData, query?.id, localStorage.getItem('token'));
+                openNotification(api, "success", "Succeed", "Query updated successfully!");
+            } else {
+                await QueryService.createQuery(sendData, localStorage.getItem('token'));
+                openNotification(api, "success", "Succeed", "Query created successfully!");
+            }
+        } catch (error) {
+            openNotification(api, "error", "Failed", "Updated failed, Something went wrong!");
         }
     }
 
@@ -43,24 +50,28 @@ const QueryModal = (props) => { // queriesState, setQueriesState
     }
 
     useEffect(() => {
-        if (querySelected) {
-            QueryService.getQueryById(querySelected, localStorage.getItem('token')).then( res => {
-                setQuery({
-                    ...res.data,
-                    metrics: res.data?.metrics.split(/[, ]+/),
-                    databases: res.data?.databases.split(/[, ]+/)
-                });
-                form.setFieldsValue({
-                    name: res.data?.name,
-                    interval: res.data?.interval,
-                    timeout: res.data?.timeout,
-                    metrics: res.data?.metrics.split(/[, ]+/),
-                    databases: res.data?.databases.split(/[, ]+/),
-                    sql: res.data?.sql,
-                    parameters: res.data?.parameters,
-                    schedule: res.data?.schedule,
-                })  
-            })
+        try {
+            if (querySelected) {
+                QueryService.getQueryById(querySelected, localStorage.getItem('token')).then( res => {
+                    setQuery({
+                        ...res.data,
+                        metrics: res.data?.metrics.split(/[, ]+/),
+                        databases: res.data?.databases.split(/[, ]+/)
+                    });
+                    form.setFieldsValue({
+                        name: res.data?.name,
+                        interval: res.data?.interval,
+                        timeout: res.data?.timeout,
+                        metrics: res.data?.metrics.split(/[, ]+/),
+                        databases: res.data?.databases.split(/[, ]+/),
+                        sql: res.data?.sql,
+                        parameters: res.data?.parameters,
+                        schedule: res.data?.schedule,
+                    })  
+                })
+            }
+        } catch (error) {
+            openNotification(api, "error", "Failed", "Network error!");
         }
     }, [querySelected])
     
@@ -79,6 +90,7 @@ const QueryModal = (props) => { // queriesState, setQueriesState
             }}
             onCancel={handleClose}
         >
+            {contextHolder}
             <Form
                 form={form}
                 layout="vertical"

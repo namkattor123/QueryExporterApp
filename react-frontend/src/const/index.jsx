@@ -11,6 +11,7 @@ import {
 
 export const infoColor = "#08c";
 export const errorColor = "#FF4D4F";
+export const sqlKeywords = ['INSERT', 'UPDATE', 'DELETE', 'COMMIT'];
 
 export const nonAuthorHeader = {
   'Content-Type': 'application/json',

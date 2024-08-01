@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
-import { Button, Pagination, Table } from "antd";
+import { Pagination, Table } from "antd";
 
 const TableComponent = (props) => {
-    const {columns, setSelectedRows, state, setState} = props;
-    const [data, setData] = useState([]);
+    const { columns, setSelectedRows, state, setState, labels } = props;
+    const [displayData, setDisplayData] = useState([]);
 
     const rowSelection = {
         onChange: (selectedRowKeys) => {
@@ -12,12 +12,12 @@ const TableComponent = (props) => {
     };
 
     const handleChangePage = (e) => {
-        setState({...state, page: e})
+        setState({...state, page: e - 1})
     }
 
     useEffect(() => {
-        setData(state.data?.slice(state.page, state.rowsPerPage));
-    }, [state.page])
+        setDisplayData(state?.data?.slice(state?.page * state?.rowsPerPage, state?.rowsPerPage * (state?.page + 1)));
+    }, [state?.page, state?.data])
 
     return (
         <div className="w-100">
@@ -29,16 +29,19 @@ const TableComponent = (props) => {
                     ...rowSelection,
                 }}
                 columns={columns}
-                dataSource={state.displayData}
+                dataSource={labels ? labels : displayData}
                 bordered
                 pagination={false}
             />
-            <Pagination
-                className="d-flex justify-content-end" 
-                current={state.page}
-                total={state.databases.length} 
-                onChange={handleChangePage}
-            />
+            {!labels &&
+                <Pagination
+                    className="d-flex justify-content-end" 
+                    current={state?.page + 1}
+                    total={state?.data.length} 
+                    onChange={handleChangePage}
+                    pageSize={state?.rowsPerPage}
+                />
+            }
         </div>
     )
 }

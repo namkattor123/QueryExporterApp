@@ -1,18 +1,18 @@
 import React, { useEffect, useState } from 'react'
 import DatabaseService from '../../services/DatabaseService'
-import { Modal, Switch } from 'antd';
+import { Modal, Switch, notification } from 'antd';
 import { ExclamationCircleFilled} from '@ant-design/icons';
 import DatabaseModal from './modal';
 import TableComponent from '../table';
 import RenderTextInTable from '../table/RenderTextInTable';
 import RenderActionInTable from '../table/RenderActionInTable';
 import CustomAddAndDeleteButton from '../button/CustomAddAndDeleteBtn';
+import { openNotification } from '../../utils';
 
 const ListDatabaseComponent = () => {
     const { confirm } = Modal;
     const [state, setState] = useState({
-        databases: [],
-        displayData: [],
+        data: [],
         page: 0,
         rowsPerPage: 5,
         refresh: false,
@@ -23,7 +23,15 @@ const ListDatabaseComponent = () => {
     })
     const [selectedRows, setSelectedRows] = useState([]);
 
+    const [api, contextHolder] = notification.useNotification();
+
     const columns = [
+        {
+            title: 'STT',
+            dataIndex: 'index',
+            width: 60,
+            render: (_, __, index) => <RenderTextInTable data={state.page * state.rowsPerPage + index + 1} />
+        },
         {
             title: 'Name',
             dataIndex: 'name',
@@ -121,19 +129,24 @@ const ListDatabaseComponent = () => {
     }
 
     const deleteDatabase = async (id) => {
-        const promiseArr = new Array();
-        if (id) {
-            await DatabaseService.deleteDatabase(id,localStorage.getItem('token'));
-        } else {
-            for (let i = 0; i < selectedRows.length; i++) {
-                promiseArr.push(DatabaseService.deleteDatabase(selectedRows[i] ,localStorage.getItem('token')));
+        try {
+            const promiseArr = new Array();
+            if (id) {
+                await DatabaseService.deleteDatabase(id, localStorage.getItem('token'));
+            } else {
+                for (let i = 0; i < selectedRows.length; i++) {
+                    promiseArr.push(DatabaseService.deleteDatabase(selectedRows[i], localStorage.getItem('token')));
+                }
+                await Promise.all(promiseArr);
             }
-            await Promise.all(promiseArr);
+            openNotification(api, 'success', 'Succeed', 'Database deleted successfully!');
+            setState({
+                ...state, 
+                refresh: !state.refresh,
+            });
+        } catch (e) {
+            openNotification(api, 'error', 'Failed', 'Database deleted fail!');
         }
-        setState({
-            ...state, 
-            refresh: !state.refresh,
-        });
     }
 
     const handleClickView = (id) => {
@@ -177,23 +190,22 @@ const ListDatabaseComponent = () => {
     };
 
     useEffect(() => {
-        DatabaseService.getDatabases(localStorage.getItem('token')).then((res) => {
-            setState({
-                ...state, 
-                databases: res.data,
-            });
-        })
-        setSelectedRows([]);
+        try {
+            DatabaseService.getDatabases(localStorage.getItem('token')).then((res) => {
+                setState({
+                    ...state, 
+                    data: res.data,
+                });
+            })
+            setSelectedRows([]);
+        } catch (err) {
+            openNotification(api, "error", "Failed", "Network error!");
+        }
     }, [state.refresh])
-
-    useEffect(() => {
-        setState({
-            ...state,
-        })
-    }, [state.page])
 
     return (
         <>
+            {contextHolder}
             <DatabaseModal 
                 databasesState={state}
                 setDatabasesState={setState}

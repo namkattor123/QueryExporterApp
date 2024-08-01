@@ -50,7 +50,9 @@ public class SecurityConfig {
 //                .antMatchers(HttpMethod.PUT, "/api/v1/**").hasAuthority("ADMIN")
 //                .antMatchers(HttpMethod.DELETE, "/api/v1/**").hasAuthority("ADMIN")
 //                .anyRequest().authenticated();
-                .anyRequest().permitAll();
+                .anyRequest().permitAll()
+                .and()
+                .cors();
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

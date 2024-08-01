@@ -1,7 +1,8 @@
-import { Col, Form, Input, Modal, Row, Select } from "antd";
+import { Col, Form, Input, Modal, Row, Select, notification } from "antd";
 import React, { useEffect, useState } from "react";
 import MetricService from "../../../services/MetricService";
 import { metricType } from "../../../const";
+import { openNotification } from "../../../utils";
 
 const MetricModal = (props) => { // metricsState, setMetricsState
     const [form] = Form.useForm();
@@ -10,11 +11,19 @@ const MetricModal = (props) => { // metricsState, setMetricsState
     const {editable, metricSelected, isMetricModalOpen, refresh} = props?.metricsState;
     const {metricsState, setMetricsState} = props;
 
+    const [api, contextHolder] = notification.useNotification();
+
     const handleFormSubmit = async (value) => {
-        if (metricSelected) {
-            await MetricService.updateMetric(value, metric?.id, localStorage.getItem('token'))
-        } else {
-            await MetricService.createMetric(value, localStorage.getItem('token'));
+        try {
+            if (metricSelected) {
+                await MetricService.updateMetric(value, metric?.id, localStorage.getItem('token'));
+                openNotification(api, "success", "Succeed", "Metric updated successfully!");
+            } else {
+                await MetricService.createMetric(value, localStorage.getItem('token'));
+                openNotification(api, "success", "Succeed", "Metric created successfully!");
+            }
+        } catch (err) {
+            openNotification(api, "error", "Failed", "Updated failed, Something went wrong!");
         }
     }
 
@@ -29,20 +38,24 @@ const MetricModal = (props) => { // metricsState, setMetricsState
     }
 
     useEffect(() => {
-        if (metricSelected) {
-            MetricService.getMetricById(metricSelected,localStorage.getItem('token')).then( res => {
-                setMetric({...res.data});
-                form.setFieldsValue({
-                    name: res.data?.name,
-                    type: res.data?.type,
-                    description: res.data?.description,
-                    labels: res.data?.labels,
-                    buckets: res.data?.buckets,
-                    states: res.data?.states,
-                    expiration: res.data?.expiration,
-                    increment: res.data?.increment,
+        try {
+            if (metricSelected) {
+                MetricService.getMetricById(metricSelected,localStorage.getItem('token')).then( res => {
+                    setMetric({...res.data});
+                    form.setFieldsValue({
+                        name: res.data?.name,
+                        type: res.data?.type,
+                        description: res.data?.description,
+                        labels: res.data?.labels,
+                        buckets: res.data?.buckets,
+                        states: res.data?.states,
+                        expiration: res.data?.expiration,
+                        increment: res.data?.increment,
+                    })
                 })
-            })
+            }
+        } catch (error) {
+            openNotification(api, "error", "Failed", "Network error!");
         }
     }, [metricSelected])
     
@@ -61,6 +74,7 @@ const MetricModal = (props) => { // metricsState, setMetricsState
             }}
             onCancel={handleClose}
         >
+            {contextHolder}
             <Form
                 form={form}
                 layout="vertical"

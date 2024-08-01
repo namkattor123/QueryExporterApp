@@ -1,7 +1,7 @@
-import { Col, Form, Input, Modal, Radio, Row, Select } from "antd";
+import { Col, Form, Input, Modal, Radio, Row, Select, notification } from "antd";
 import React, { useEffect, useRef, useState } from "react";
 import { userRole } from "../../../const";
-import { convertToSelectValue } from "../../../utils";
+import { convertToSelectValue, openNotification } from "../../../utils";
 import { getUserById, registerUser, updateUser } from "../../../services/UserService";
 
 const UserModal = (props) => { // usersState, setUsersState
@@ -11,11 +11,19 @@ const UserModal = (props) => { // usersState, setUsersState
     const {editable, userSelected, isUserModalOpen, refresh} = props?.usersState;
     const {usersState, setUsersState} = props;
 
+    const [api, contextHolder] = notification.useNotification();
+
     const handleOk = async (value) => {
-        if (userSelected) {
-            await updateUser(value, user?.id, localStorage.getItem('token'));
-        } else {
-            await registerUser(value, localStorage.getItem('token'));
+        try {
+            if (userSelected) {
+                await updateUser(value, user?.id, localStorage.getItem('token'));
+                openNotification(api, "success", "Succeed", "Account updated successfully!");
+            } else {
+                await registerUser(value, localStorage.getItem('token'));
+                openNotification(api, "success", "Succeed", "Account created successfully!");
+            }
+        } catch (err) {
+            openNotification(api, "error", "Failed", "Updated failed, Something went wrong!");
         }
     }
 
@@ -30,19 +38,23 @@ const UserModal = (props) => { // usersState, setUsersState
     }
 
     useEffect(() => {
-        if (userSelected) {
-            getUserById(userSelected, localStorage.getItem('token')).then( res => {
-                setUser({...res.data});
-                form.setFieldsValue({
-                    username: res.data?.username,
-                    password: res.data?.password,
-                    fullName: res.data?.fullName,
-                    phoneNumber: res.data?.phoneNumber,
-                    address: res.data?.address,
-                    email: res.data?.email,
-                    roles: convertToSelectValue(res.data?.roles)
+        try {
+            if (userSelected) {
+                getUserById(userSelected, localStorage.getItem('token')).then( res => {
+                    setUser({...res.data});
+                    form.setFieldsValue({
+                        username: res.data?.username,
+                        password: res.data?.password,
+                        fullName: res.data?.fullName,
+                        phoneNumber: res.data?.phoneNumber,
+                        address: res.data?.address,
+                        email: res.data?.email,
+                        roles: convertToSelectValue(res.data?.roles)
+                    })
                 })
-            })
+            }
+        } catch (err) {
+            openNotification(api, "error", "Failed", "Network error!");
         }
     }, [userSelected])
     
@@ -61,6 +73,7 @@ const UserModal = (props) => { // usersState, setUsersState
             }} 
             onCancel={handleClose}
         >
+            {contextHolder}
             <Form
                 form={form}
                 layout="vertical"

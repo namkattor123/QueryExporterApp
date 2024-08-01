@@ -1,19 +1,21 @@
 import React, { useEffect, useState } from 'react'
 import MetricService from '../../services/MetricService'
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import { Button, Flex, Modal } from 'antd';
+import { Button, Flex, Modal, notification } from 'antd';
 import MetricModal from './modal';
 import { metricFilterType } from '../../const';
 import TableComponent from '../table';
 import RenderTextInTable from '../table/RenderTextInTable';
 import RenderActionInTable from '../table/RenderActionInTable';
 import CustomAddAndDeleteButton from '../button/CustomAddAndDeleteBtn';
+import { openNotification } from '../../utils';
 
 const ListMetricComponent = () => {
     const { confirm } = Modal;
     const [state, setState] = useState({
-        metrics: [],
-        // selectedRows: [],
+        data: [],
+        page: 0,
+        rowsPerPage: 5,
         refresh: false,
         isOpenConfirmModal: false,
         isMetricModalOpen: false,
@@ -21,8 +23,15 @@ const ListMetricComponent = () => {
         metricSelected: null
     })
     const [selectedRows, setSelectedRows] = useState([]);
+    const [api, contextHolder] = notification.useNotification();
 
     const columns = [
+        {
+            title: 'STT',
+            dataIndex: 'index',
+            width: 60,
+            render: (_, __, index) => <RenderTextInTable data={state.page * state.rowsPerPage + index + 1} />
+        },
         {
             title: 'Name',
             dataIndex: 'name',
@@ -84,19 +93,24 @@ const ListMetricComponent = () => {
     ]
 
     const deleteMetric = async (id) => {
-        const promiseArr = new Array();
-        if (id) {
-            await MetricService.deleteMetric(id, localStorage.getItem('token'));
-        } else {
-            for (let i = 0; i < selectedRows.length; i++) {
-                promiseArr.push(MetricService.deleteMetric(selectedRows[i] ,localStorage.getItem('token')));
+        try {
+            const promiseArr = new Array();
+            if (id) {
+                await MetricService.deleteMetric(id, localStorage.getItem('token'));
+            } else {
+                for (let i = 0; i < selectedRows.length; i++) {
+                    promiseArr.push(MetricService.deleteMetric(selectedRows[i] ,localStorage.getItem('token')));
+                }
+                await Promise.all(promiseArr);
             }
-            await Promise.all(promiseArr);
+            setState({
+                ...state, 
+                refresh: !state.refresh,
+            });
+            openNotification(api, 'success', 'Succeed', 'Metric deleted successfully!');
+        } catch (err) {
+            openNotification(api, 'error', 'Failed', 'Metric deleted fail!');
         }
-        setState({
-            ...state, 
-            refresh: !state.refresh,
-        });
     }
     
     const handleClickView = (id) => {
@@ -140,14 +154,19 @@ const ListMetricComponent = () => {
     };
 
     useEffect(() => {
-        MetricService.getMetrics(localStorage.getItem('token')).then((res) => {
-            setState({ ...state ,metrics: res.data});
-        });
-        setSelectedRows([]);
+        try {
+            MetricService.getMetrics(localStorage.getItem('token')).then((res) => {
+                setState({ ...state, data: res.data});
+            });
+            setSelectedRows([]);
+        } catch (err) {
+            openNotification(api, "error", "Failed", "Network error!");
+        }
     }, [state.refresh])
 
     return (
         <>
+            {contextHolder}
             <MetricModal 
                 metricsState={state}
                 setMetricsState={setState}
@@ -160,9 +179,10 @@ const ListMetricComponent = () => {
             />
             <TableComponent 
                 columns={columns}
-                data={state.metrics}
                 selectedRows={selectedRows}
                 setSelectedRows={setSelectedRows}
+                state={state}
+                setState={setState}
             />
         </>
     )

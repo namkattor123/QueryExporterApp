@@ -66,3 +66,10 @@ export const headers = (token) => {
       'Access-Control-Allow-Methods': 'OPTIONS, DELETE, POST, GET, PATCH, PUT',
     }
 }
+
+export const openNotification = (api, type, message, description) => {
+  return api[type]({
+    message: message,
+    description: description,
+  });
+}

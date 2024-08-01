@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import QueryService from '../../services/QueryService'
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import { Modal } from 'antd';
+import { Modal, notification } from 'antd';
 import QueryModal from './modal';
 import DatabaseService from '../../services/DatabaseService';
 import MetricService from '../../services/MetricService';
@@ -9,12 +9,14 @@ import TableComponent from '../table';
 import RenderTextInTable from '../table/RenderTextInTable';
 import RenderActionInTable from '../table/RenderActionInTable';
 import CustomAddAndDeleteButton from '../button/CustomAddAndDeleteBtn';
+import { openNotification } from '../../utils';
 
 const ListQueryComponent = () => {
     const { confirm } = Modal;
     const [state, setState] = useState({
-        queries: [],
-        // selectedRows: [],
+        data: [],
+        page: 0,
+        rowsPerPage: 5,
         refresh: false,
         isOpenConfirmModal: false,
         isQueryModalOpen: false,
@@ -25,7 +27,15 @@ const ListQueryComponent = () => {
     const [metricList, setMetricList] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
 
+    const [api, contextHolder] = notification.useNotification();
+
     const columns = [
+        {
+            title: 'STT',
+            dataIndex: 'index',
+            width: 60,
+            render: (_, __, index) => <RenderTextInTable data={state.page * state.rowsPerPage + index + 1} />
+        },
         {
             title: 'Name',
             dataIndex: 'name',
@@ -77,19 +87,24 @@ const ListQueryComponent = () => {
     ]
 
     const deleteQuery = async (id) => {
-        const promiseArr = new Array();
-        if (id) {
-            await QueryService.deleteQuery(id, localStorage.getItem('token'));
-        } else {
-            for (let i = 0; i < selectedRows.length; i++) {
-                promiseArr.push(QueryService.deleteQuery(selectedRows[i] ,localStorage.getItem('token')));
+        try {
+            const promiseArr = new Array();
+            if (id) {
+                await QueryService.deleteQuery(id, localStorage.getItem('token'));
+            } else {
+                for (let i = 0; i < selectedRows.length; i++) {
+                    promiseArr.push(QueryService.deleteQuery(selectedRows[i] ,localStorage.getItem('token')));
+                }
+                await Promise.all(promiseArr);
             }
-            await Promise.all(promiseArr);
+            setState({
+                ...state, 
+                refresh: !state.refresh,
+            });
+            openNotification(api, 'success', 'Succeed', 'Query deleted successfully!');
+        } catch (err) {
+            openNotification(api, 'error', 'Failed', 'Query deleted fail!');
         }
-        setState({
-            ...state, 
-            refresh: !state.refresh,
-        });
     }
     const handleClickView = (id) => {
         setState({
@@ -141,14 +156,19 @@ const ListQueryComponent = () => {
     }, [])
 
     useEffect(() => {
-        QueryService.getQueries(localStorage.getItem('token')).then((res) => {
-            setState({ ...state ,queries: res.data});
-        });
-        setSelectedRows([]);
+        try {
+            QueryService.getQueries(localStorage.getItem('token')).then((res) => {
+                setState({ ...state ,data: res.data});
+            });
+            setSelectedRows([]);
+        } catch (err) {
+            openNotification(api, "error", "Failed", "Network error!");
+        }
     }, [state.refresh])
 
     return (
         <>
+            {contextHolder}
             <QueryModal 
                 queriesState={state}
                 setQueriesState={setState}
@@ -163,9 +183,10 @@ const ListQueryComponent = () => {
             />
             <TableComponent 
                 columns={columns}
-                data={state.queries}
                 selectedRows={selectedRows}
                 setSelectedRows={setSelectedRows}
+                state={state}
+                setState={setState}            
             />
         </>
     )

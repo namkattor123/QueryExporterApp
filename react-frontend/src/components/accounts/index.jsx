@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { ExclamationCircleFilled } from '@ant-design/icons';
-import { Modal } from 'antd';
+import { Modal, notification } from 'antd';
 import { useHistory } from "react-router-dom";
 import TableComponent from '../table';
 import UserModal from './modal';
@@ -9,12 +9,15 @@ import RendertTagInTable from '../table/RenderTagInTable';
 import RenderActionInTable from '../table/RenderActionInTable';
 import { deleteUser, getUsers } from '../../services/UserService';
 import CustomAddAndDeleteButton from '../button/CustomAddAndDeleteBtn';
+import { openNotification } from '../../utils';
 
 const ListUserComponent = () => {
     const { confirm } = Modal;
     const history = useHistory();   
     const [state, setState] = useState({
-        users: [],
+        data: [],
+        page: 0,
+        rowsPerPage: 5,
         refresh: false,
         isOpenConfirmModal: false,
         isUserModalOpen: false,
@@ -23,7 +26,15 @@ const ListUserComponent = () => {
     })
     const [selectedRows, setSelectedRows] = useState([]);
 
+    const [api, contextHolder] = notification.useNotification();
+
     const columns = [
+        {
+            title: 'STT',
+            dataIndex: 'index',
+            width: 60,
+            render: (_, __, index) => <RenderTextInTable data={state.page * state.rowsPerPage + index + 1} />
+        },
         {
             title: 'Username',
             dataIndex: 'username',
@@ -122,34 +133,45 @@ const ListUserComponent = () => {
     }
     
     const handleDeleteUser = async (id) => {
-        const promiseArr = new Array();
-        if (id) {
-            await deleteUser(id, localStorage.getItem('token'));
-        } else {
-            for (let i = 0; i < selectedRows.length; i++) {
-                promiseArr.push(deleteUser(selectedRows[i] ,localStorage.getItem('token')));
+        try {
+            const promiseArr = new Array();
+            if (id) {
+                await deleteUser(id, localStorage.getItem('token'));
+            } else {
+                for (let i = 0; i < selectedRows.length; i++) {
+                    promiseArr.push(deleteUser(selectedRows[i] ,localStorage.getItem('token')));
+                }
+                await Promise.all(promiseArr);
             }
-            await Promise.all(promiseArr);
+            openNotification(api, 'success', 'Succeed', 'Account deleted successfully!');
+            setState({
+                ...state, 
+                refresh: !state.refresh,
+            });
+
+        } catch (err) {
+            openNotification(api, 'error', 'Failed', 'Database deleted fail!');
         }
-        setState({
-            ...state, 
-            refresh: !state.refresh,
-        });
     }
 
     useEffect(() => {
-        getUsers(localStorage.getItem('token')).then((res) => {
-            setState({ ...state, users: res.data});
-            setSelectedRows([]);
-        }).catch(error => {
-            if (error.response.status === 403) {
-                history.push("/not-authorized");
-            }
-        });
+        try {
+            getUsers(localStorage.getItem('token')).then((res) => {
+                setState({ ...state, data: res.data});
+                setSelectedRows([]);
+            }).catch(error => {
+                if (error.response.status === 403) {
+                    history.push("/not-authorized");
+                }
+            });
+        } catch (err) {
+            openNotification(api, "error", "Failed", "Network error!");
+        }
     }, [state.refresh])
 
     return (
         <div>
+            {contextHolder}
             <UserModal 
                 usersState={state}
                 setUsersState={setState}
@@ -162,9 +184,10 @@ const ListUserComponent = () => {
             />
             <TableComponent 
                 columns={columns}
-                data={state.users}
                 selectedRows={selectedRows}
                 setSelectedRows={setSelectedRows}
+                state={state}
+                setState={setState}
             />
         </div>
     )
