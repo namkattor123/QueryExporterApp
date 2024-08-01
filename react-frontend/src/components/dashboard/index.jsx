@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Layout, theme } from 'antd';
 import ListDatabaseComponent from '../databases/index.jsx';
-import ExportPages from '../export/index.jsx';
 import HomeComponent from '../home/index.jsx';
 import ListMetricComponent from '../metrics/index.jsx';
 import ListQueryComponent from '../queries/index.jsx';
@@ -43,7 +42,6 @@ const DashBoard = () => {
               }}
             >
               <PrivateRoute path="/home" component={HomeComponent} />
-              <PrivateRoute path="/export" component={ExportPages} />
               <PrivateRoute path="/user" component={ListUserComponent} />
               <PrivateRoute path="/metrics" component={ListMetricComponent} />
               <PrivateRoute path = "/queries" component = {ListQueryComponent} />
