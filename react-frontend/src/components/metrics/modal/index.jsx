@@ -23,7 +23,7 @@ const MetricModal = (props) => { // metricsState, setMetricsState
                 openNotification(api, "success", "Succeed", "Metric created successfully!");
             }
         } catch (err) {
-            openNotification(api, "error", "Failed", "Updated failed, Something went wrong!");
+            openNotification(api, "error", "Failed", err?.response?.data?.message);
         }
     }
 

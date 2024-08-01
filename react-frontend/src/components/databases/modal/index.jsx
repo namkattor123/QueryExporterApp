@@ -48,7 +48,7 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
                 openNotification(api, "success", "Succeed", "Database created successfully!");
             }
         } catch (err) {
-            openNotification(api, "error", "Failed", "Updated failed, Something went wrong!");
+            openNotification(api, "error", "Failed", err?.response?.data?.message);
         }
     }
 

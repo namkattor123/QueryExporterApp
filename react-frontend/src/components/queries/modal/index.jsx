@@ -27,8 +27,8 @@ const QueryModal = (props) => { // queriesState, setQueriesState
                 await QueryService.createQuery(sendData, localStorage.getItem('token'));
                 openNotification(api, "success", "Succeed", "Query created successfully!");
             }
-        } catch (error) {
-            openNotification(api, "error", "Failed", "Updated failed, Something went wrong!");
+        } catch (err) {
+            openNotification(api, "error", "Failed", err?.response?.data?.message);
         }
     }
 

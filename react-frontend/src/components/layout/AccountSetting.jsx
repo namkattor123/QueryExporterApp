@@ -1,13 +1,31 @@
 import { Col, Form, Input, Modal, Row } from "antd";
-import React from "react";
+import React, { useEffect } from "react";
+import { useHistory } from "react-router-dom";
+import { isTokenExpired } from "../../utils";
 
 const AccountSetting = (props) => {
     const { open, setOpen, user } = props;
     const [form] = Form.useForm();
+    const history = useHistory();
+
+    const token = localStorage.getItem('token');
 
     const handleClose = () => {
         setOpen(false);
     }
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            if (isTokenExpired(token)) {
+                localStorage.removeItem('token');
+                history.push('/login');
+            } else {
+                JSON.parse(localStorage.getItem('user'));
+            }
+        }, 864000000);
+ 
+        return () => clearInterval(interval);
+    }, []);
 
     return (
         <Modal

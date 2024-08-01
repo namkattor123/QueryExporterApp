@@ -1,3 +1,5 @@
+import { jwtDecode } from 'jwt-decode';
+
 export const actionIconStyle = (color) => {
     return {
         fontSize: '1.5rem', 
@@ -73,3 +75,15 @@ export const openNotification = (api, type, message, description) => {
     description: description,
   });
 }
+
+export const isTokenExpired = (token) => {
+  if (!token) return true;
+  try {
+    const decodedToken = jwtDecode(token);
+    const currentTime = Date.now() / 1000;  
+    return decodedToken.exp < currentTime;
+  } catch (error) {
+    console.error('Error decoding token:', error);
+    return true;
+  }
+};

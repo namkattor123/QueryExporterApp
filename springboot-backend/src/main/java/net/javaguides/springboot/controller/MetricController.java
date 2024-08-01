@@ -11,11 +11,8 @@ import net.javaguides.springboot.repository.UserRepository;
 import net.javaguides.springboot.security.JWTGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.annotation.Secured;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import javax.annotation.security.RolesAllowed;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,18 +47,22 @@ public class MetricController {
 	// create metric rest api
 	@PostMapping("/metrics")
 	public Metric createMetric(@RequestHeader("Authorization") String authorizationHeader, @RequestBody Metric metric) {
-			if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-				authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
-			}
-			if(metricRepository.existsByName(metric.getName())){
-				throw new IllegalArgumentException("Item with this name already exists.");
-			}
-			String username = tokenGenerator.getUsernameFromJWT(authorizationHeader);
-			UserEntity user = userRepository.findByUsername(username).get();
-			metric.setUser(user);
-			System.out.println("User role: " + user.getRoles().get(0).getName());
-			Metric savedMetric = metricRepository.save(metric);
-			return savedMetric;
+		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+			authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
+		}
+		String username = tokenGenerator.getUsernameFromJWT(authorizationHeader);
+
+		List<Metric> metrics = metricRepository.findByUsernameFromJoinedTables(username);
+		for (Metric data : metrics) {
+			if (data.getName().equals(metric.getName()))
+				throw new IllegalArgumentException("Metric already exists.");
+		}
+
+		UserEntity user = userRepository.findByUsername(username).get();
+		metric.setUser(user);
+		System.out.println("User role: " + user.getRoles().get(0).getName());
+		Metric savedMetric = metricRepository.save(metric);
+		return savedMetric;
 	}
 	
 	// get metric by id rest api

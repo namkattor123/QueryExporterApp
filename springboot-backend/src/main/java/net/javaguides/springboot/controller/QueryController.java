@@ -6,6 +6,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLGenerator;
 import net.javaguides.springboot.dto.QueryDTO;
 import net.javaguides.springboot.exception.ResourceNotFoundException;
 import net.javaguides.springboot.mapper.QueryMapper;
+import net.javaguides.springboot.model.Metric;
 import net.javaguides.springboot.model.Queries;
 import net.javaguides.springboot.model.UserEntity;
 import net.javaguides.springboot.repository.DatabaseRepository;
@@ -72,9 +73,17 @@ public class QueryController {
     }
 	@PostMapping("/queries/test")
 	public ResponseEntity<String> createQuery(@RequestHeader("Authorization") String authorizationHeader,@RequestBody QueryDTO queryDTO)  {
-		if(queryRepository.existsByName(queryDTO.getName())){
-			throw new IllegalArgumentException("Item with this name already exists.");
+		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
+			authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
 		}
+		String username = tokenGenerator.getUsernameFromJWT(authorizationHeader);
+
+		List<Queries> queries = queryRepository.findByUsernameFromJoinedTables(username);
+		for (Queries query : queries) {
+			if (query.getName().equals(queryDTO.getName()))
+				throw new IllegalArgumentException("Query already exists.");
+		}
+
 		String databaseSave = "";
 		for(int i = 0 ; i < queryDTO.databases.size() ; i ++ ){
 			if(i == queryDTO.databases.size() - 1){
@@ -92,10 +101,6 @@ public class QueryController {
 			}
 		}
 		Queries query = new Queries(queryDTO.getId(),queryDTO.getName(),queryDTO.getTimeout(),queryDTO.getInterval(),queryDTO.getSql(),databaseSave,metricSave);
-		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-			authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
-		}
-		String username = tokenGenerator.getUsernameFromJWT(authorizationHeader);
 		UserEntity user = userRepository.findByUsername(username).get();
 		query.setUser(user);
 		queryRepository.save(query);

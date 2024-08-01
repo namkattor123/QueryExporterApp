@@ -53,15 +53,19 @@ public class DatabaseController {
 		LOGGER.info("Create Database by user : ", username);
 		String linkDB = databaseDTO.getLink();
 		String [] split = linkDB.split("://|@|:|/");
-		System.out.println(split.length);
-		if(databaseRepository.existsByName(split[5])){
-			throw new IllegalArgumentException("Item with this name already exists.");
+
+		List<Database> databases = databaseRepository.findByUsernameFromJoinedTables(username);
+		for (Database database : databases) {
+			System.out.println("hostname: " + database.getHostName() + " - " + split[5]);
+			if (database.getName().equals(split[5]))
+				throw new IllegalArgumentException("Database already exists.");
 		}
+
 		Database database = new Database();
 		database.setLink(databaseDTO.getLink());
 		database.setDsn(PassTranformer.encrypt(linkDB));
 
-		String label = "hostname: "+split[3] + "\\n" + "serviceCode: "+databaseDTO.getServiceCode();
+		String label = "hostname: " + split[3] + "\\n" + "serviceCode: " + databaseDTO.getServiceCode();
 		database.setLabel(label +  "\\n" + databaseDTO.getLabel());
 		database.setHostName(split[3]);
 		database.setName(split[5]);

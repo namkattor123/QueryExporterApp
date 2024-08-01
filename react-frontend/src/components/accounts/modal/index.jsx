@@ -1,6 +1,7 @@
-import { Col, Form, Input, Modal, Radio, Row, Select, notification } from "antd";
-import React, { useEffect, useRef, useState } from "react";
+import { Col, Form, Input, Modal, Row, Select, notification } from "antd";
+import React, { useEffect, useState } from "react";
 import { userRole } from "../../../const";
+import { LockOutlined } from '@ant-design/icons';
 import { convertToSelectValue, openNotification } from "../../../utils";
 import { getUserById, registerUser, updateUser } from "../../../services/UserService";
 
@@ -23,7 +24,7 @@ const UserModal = (props) => { // usersState, setUsersState
                 openNotification(api, "success", "Succeed", "Account created successfully!");
             }
         } catch (err) {
-            openNotification(api, "error", "Failed", "Updated failed, Something went wrong!");
+            openNotification(api, "error", "Failed", err?.response?.data?.message);
         }
     }
 
@@ -105,7 +106,11 @@ const UserModal = (props) => { // usersState, setUsersState
                                     }
                                 ]}
                             >
-                                <Input value={user?.password}/>
+                                <Input.Password 
+                                    value={user?.password}
+                                    type="password"
+                                    prefix={<LockOutlined />}
+                                />
                             </Form.Item>
                         </Col>
                     }

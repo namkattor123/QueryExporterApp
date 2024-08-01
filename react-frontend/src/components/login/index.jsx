@@ -20,7 +20,6 @@ const LoginPage = () => {
         history.push('/home');
       }
     } catch (err) {
-      console.log(err);
       api["error"]({
         message: "Login failed",
         description: err?.response?.data?.message,

@@ -55,7 +55,7 @@ public class SecurityConfig {
                 .cors();
         http.addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
-    }
+    }   
 
     @Bean
     public AuthenticationManager authenticationManager(
