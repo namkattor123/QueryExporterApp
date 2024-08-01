@@ -8,6 +8,8 @@ import {
     ExclamationCircleOutlined
 } from '@ant-design/icons';
 
+export const linkDbRegex = /^[a-zA-Z0-9]+(\+[a-zA-Z0-9]+)?:\/\/[a-zA-Z0-9]+:[a-zA-Z0-9]+@[a-zA-Z0-9.-]+:\d+\/[a-zA-Z0-9._-]+$/;
+
 export const infoColor = "#08c";
 export const errorColor = "#FF4D4F";
 export const sqlKeywords = ['INSERT', 'UPDATE', 'DELETE', 'COMMIT'];

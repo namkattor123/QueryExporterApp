@@ -1,10 +1,11 @@
-import { Button, Col, Flex, Form, Input, Modal, Radio, Row, Typography, notification } from "antd";
+import { Button, Col, Flex, Form, Input, Modal, Radio, Row, notification } from "antd";
 import React, { useEffect, useState } from "react";
 import DatabaseService from "../../../services/DatabaseService";
 import RenderTextInTable from "../../table/RenderTextInTable";
 import { convertKeyValueToString, convertStringToKeyValueData, openNotification } from "../../../utils";
 import TableComponent from "../../table";
 import AddLabelModal from "./AddLabelModal";
+import { linkDbRegex } from "../../../const";
 
 const DatabaseModal = (props) => { // databasesState, setDatabasesState
     const [form] = Form.useForm();
@@ -130,7 +131,18 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
                                 {
                                   required: true,
                                   message: "Link is required!",
-                                }
+                                },
+                                () => ({
+                                    validator(_, value) {
+                                        if (!value) {
+                                            return Promise.resolve();
+                                        }
+                                        if (!linkDbRegex.test(value)) {
+                                            return Promise.reject(new Error('Link must be followed format: [db]+[driver]://user:pass@host:port/db_name'));
+                                        }
+                                        return Promise.resolve();
+                                    },
+                                }),
                             ]}
                         >
                             <Input value={database?.link} disabled={!editable}/>
