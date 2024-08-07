@@ -21,6 +21,7 @@
     "jwt-decode": "^4.0.0",
     "moment": "^2.30.1",
     "react": "^16.13.1",
+    "react-apexcharts": "^1.4.1",
     "react-bootstrap": "^2.1.2",
     "react-display-window": "^2.1.2",
     "react-dom": "^16.13.1",
