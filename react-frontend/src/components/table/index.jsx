@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Pagination, Table } from "antd";
+import { Pagination, Skeleton, Table } from "antd";
 
 const TableComponent = (props) => {
     const { columns, setSelectedRows, state, setState, labels } = props;
@@ -21,27 +21,29 @@ const TableComponent = (props) => {
 
     return (
         <div className="w-100">
-            <Table 
-                rowKey={(record) => record?.id}
-                className="mb-2"
-                rowSelection={{
-                    type: 'checkbox',
-                    ...rowSelection,
-                }}
-                columns={columns}
-                dataSource={labels ? labels : displayData}
-                bordered
-                pagination={false}
-            />
-            {!labels &&
-                <Pagination
-                    className="d-flex justify-content-end" 
-                    current={state?.page + 1}
-                    total={state?.data.length} 
-                    onChange={handleChangePage}
-                    pageSize={state?.rowsPerPage}
+            <Skeleton active loading={state?.loading}>
+                <Table 
+                    rowKey={(record) => record?.id}
+                    className="mb-2"
+                    rowSelection={{
+                        type: 'checkbox',
+                        ...rowSelection,
+                    }}
+                    columns={columns}
+                    dataSource={labels ? labels : displayData}
+                    bordered
+                    pagination={false}
                 />
-            }
+                {!labels &&
+                    <Pagination
+                        className="d-flex justify-content-end" 
+                        current={state?.page + 1}
+                        total={state?.data.length} 
+                        onChange={handleChangePage}
+                        pageSize={state?.rowsPerPage}
+                    />
+                }
+            </Skeleton>
         </div>
     )
 }

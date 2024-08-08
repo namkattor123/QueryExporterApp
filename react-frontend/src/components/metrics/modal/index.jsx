@@ -68,6 +68,7 @@ const MetricModal = (props) => { // metricsState, setMetricsState
             onOk={() => {
                 form.validateFields()
                   .then(async (value) => {
+                    setMetricsState({...metricsState, loading: true});
                     await handleFormSubmit(value);
                     handleClose();
                 });

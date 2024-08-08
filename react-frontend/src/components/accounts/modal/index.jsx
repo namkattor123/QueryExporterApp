@@ -68,6 +68,7 @@ const UserModal = (props) => { // usersState, setUsersState
             onOk={() => {
                 form.validateFields()
                   .then(async (value) => {
+                    setUsersState({...usersState, loading: true});
                     await handleOk(value);
                     handleClose();
                 });

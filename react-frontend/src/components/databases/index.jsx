@@ -19,8 +19,9 @@ const ListDatabaseComponent = () => {
         isOpenConfirmModal: false,
         isDatabaseModalOpen: false,
         editable: false,
-        databaseSelected: null
-    })
+        databaseSelected: null,
+        loading: true
+    });
     const [selectedRows, setSelectedRows] = useState([]);
 
     const [api, contextHolder] = notification.useNotification();
@@ -146,6 +147,7 @@ const ListDatabaseComponent = () => {
             });
         } catch (e) {
             openNotification(api, 'error', 'Failed', 'Database deleted fail!');
+            setState({...state, loading: false});
         }
     }
 
@@ -181,6 +183,7 @@ const ListDatabaseComponent = () => {
           okType: 'danger',
           cancelText: 'No',
           onOk() {
+            setState({...state, loading: true});
             deleteDatabase(id);
           },
           onCancel() {
@@ -195,6 +198,7 @@ const ListDatabaseComponent = () => {
                 setState({
                     ...state, 
                     data: res.data,
+                    loading: false
                 });
             })
             setSelectedRows([]);

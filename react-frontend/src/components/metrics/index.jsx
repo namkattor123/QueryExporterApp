@@ -16,6 +16,7 @@ const ListMetricComponent = () => {
         data: [],
         page: 0,
         rowsPerPage: 5,
+        loading: true,
         refresh: false,
         isOpenConfirmModal: false,
         isMetricModalOpen: false,
@@ -110,6 +111,7 @@ const ListMetricComponent = () => {
             openNotification(api, 'success', 'Succeed', 'Metric deleted successfully!');
         } catch (err) {
             openNotification(api, 'error', 'Failed', 'Metric deleted fail!');
+            setState({...state, loading: false});
         }
     }
     
@@ -145,6 +147,7 @@ const ListMetricComponent = () => {
           okType: 'danger',
           cancelText: 'No',
           onOk() {
+            setState({...state, loading: true});
             deleteMetric(id);
           },
           onCancel() {
@@ -156,7 +159,11 @@ const ListMetricComponent = () => {
     useEffect(() => {
         try {
             MetricService.getMetrics(localStorage.getItem('token')).then((res) => {
-                setState({ ...state, data: res.data});
+                setState({ 
+                    ...state, 
+                    data: res.data,
+                    loading: false
+                });
             });
             setSelectedRows([]);
         } catch (err) {

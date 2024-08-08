@@ -19,6 +19,7 @@ const ListUserComponent = () => {
         page: 0,
         rowsPerPage: 5,
         refresh: false,
+        loading: true,
         isOpenConfirmModal: false,
         isUserModalOpen: false,
         editable: false,
@@ -148,16 +149,20 @@ const ListUserComponent = () => {
                 ...state, 
                 refresh: !state.refresh,
             });
-
         } catch (err) {
             openNotification(api, 'error', 'Failed', 'Database deleted fail!');
+            setState({...state, loading: false});
         }
     }
 
     useEffect(() => {
         try {
             getUsers(localStorage.getItem('token')).then((res) => {
-                setState({ ...state, data: res.data});
+                setState({ 
+                    ...state, 
+                    data: res.data,
+                    loading: false
+                });
                 setSelectedRows([]);
             }).catch(error => {
                 if (error.response.status === 403) {

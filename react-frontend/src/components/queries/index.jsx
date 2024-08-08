@@ -18,6 +18,7 @@ const ListQueryComponent = () => {
         page: 0,
         rowsPerPage: 5,
         refresh: false,
+        loading: true,
         isOpenConfirmModal: false,
         isQueryModalOpen: false,
         editable: false,
@@ -104,6 +105,7 @@ const ListQueryComponent = () => {
             openNotification(api, 'success', 'Succeed', 'Query deleted successfully!');
         } catch (err) {
             openNotification(api, 'error', 'Failed', 'Query deleted fail!');
+            setState({...state, loading: false});
         }
     }
     const handleClickView = (id) => {
@@ -158,7 +160,11 @@ const ListQueryComponent = () => {
     useEffect(() => {
         try {
             QueryService.getQueries(localStorage.getItem('token')).then((res) => {
-                setState({ ...state ,data: res.data});
+                setState({ 
+                    ...state,
+                    data: res.data,
+                    loading: false
+                });
             });
             setSelectedRows([]);
         } catch (err) {

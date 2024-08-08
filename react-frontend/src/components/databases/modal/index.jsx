@@ -40,7 +40,7 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
             const sendValue = {
                 ...value,
                 label: convertKeyValueToString(labels)
-            }
+            };
             if (databaseSelected) {
                 await DatabaseService.updateDatabase(sendValue, database?.id, localStorage.getItem('token'));
                 openNotification(api, "success", "Succeed", "Database updated successfully!");
@@ -59,7 +59,7 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
             ...databasesState, 
             isDatabaseModalOpen: false,
             databaseSelected: null,
-            refresh: !refresh
+            refresh: !refresh,
         })
         form.resetFields();
     }
@@ -110,7 +110,8 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
             onOk={() => {
                 form.validateFields()
                   .then(async (value) => {
-                    await handleOk(value);
+                    await handleOk(value);    
+                    setDatabasesState({...databasesState, loading: true});
                     handleClose();
                 });
             }} 

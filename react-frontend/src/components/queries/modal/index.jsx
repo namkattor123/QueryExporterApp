@@ -84,6 +84,7 @@ const QueryModal = (props) => { // queriesState, setQueriesState
             onOk={() => {
                 form.validateFields()
                   .then(async (value) => {
+                    setQueriesState({...queriesState, loading: true});
                     await handleFormSubmit(value);
                     handleClose();
                 });
