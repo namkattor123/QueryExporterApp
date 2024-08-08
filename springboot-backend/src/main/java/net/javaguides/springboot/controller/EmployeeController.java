@@ -67,11 +67,11 @@ public class EmployeeController {
 		dumperOptions.setDefaultScalarStyle(DumperOptions.ScalarStyle.PLAIN);
 		Yaml yaml = new Yaml(dumperOptions);
 		List<Database> allDB = databaseRepository.findByUsernameFromJoinedTables(username);
-		DatabaseMapper mapperDB = new DatabaseMapper();
+		DatabaseMapper mapperDB = new DatabaseMapper(databaseRepository);
 		List<Metric> allMetrics = metricRepository.findByUsernameFromJoinedTables(username);
-		MetricMapper mapperMetric = new MetricMapper();
+		MetricMapper mapperMetric = new MetricMapper(metricRepository);
 		List<Queries> allQueries = queryRepository.findByUsernameFromJoinedTables(username);
-		QueryMapper mapperQuery = new QueryMapper();
+		QueryMapper mapperQuery = new QueryMapper(queryRepository);
 		Path currentWorkingDirectory = Paths.get("").toAbsolutePath();
 		String currentPath = currentWorkingDirectory.toString()+"/test.yaml";
 		System.out.println("Current Working Directory: " + currentWorkingDirectory);
@@ -119,11 +119,11 @@ public class EmployeeController {
 		dumperOptions.setDefaultFlowStyle(DumperOptions.FlowStyle.AUTO);
 		Yaml yaml = new Yaml(dumperOptions);
 		List<Database> allDB = databaseRepository.findByUsernameFromJoinedTables(username);
-		DatabaseMapper mapperDB = new DatabaseMapper();
+		DatabaseMapper mapperDB = new DatabaseMapper(databaseRepository);
 		List<Metric> allMetrics = metricRepository.findByUsernameFromJoinedTables(username);
-		MetricMapper mapperMetric = new MetricMapper();
+		MetricMapper mapperMetric = new MetricMapper(metricRepository);
 		List<Queries> allQueries = queryRepository.findByUsernameFromJoinedTables(username);
-		QueryMapper mapperQuery = new QueryMapper();
+		QueryMapper mapperQuery = new QueryMapper(queryRepository);
 		Path currentWorkingDirectory = Paths.get("").toAbsolutePath();
 		String currentPath = currentWorkingDirectory.toString()+"/test.yaml";
 		System.out.println("Current Working Directory: " + currentWorkingDirectory);
@@ -175,13 +175,23 @@ public class EmployeeController {
 			Yaml yaml = new Yaml();
 			FileExport data = yaml.loadAs(yamlData,FileExport.class);
 //			FileExport data = objectMapper.readValue(yamlData, FileExport.class);
-			DatabaseMapper mapperDB = new DatabaseMapper();
-			MetricMapper mapperMetric = new MetricMapper();
-			QueryMapper mapperQuery = new QueryMapper();
+			DatabaseMapper mapperDB = new DatabaseMapper(databaseRepository);
+			MetricMapper mapperMetric = new MetricMapper(metricRepository);
+			QueryMapper mapperQuery = new QueryMapper(queryRepository);
 
 			List<Database> databases =  mapperDB.toModelFromYaml(data.getDatabases(),user);
 			List<Metric> metrics = mapperMetric.toModelFromYaml(data.getMetrics(),user);
 			List<Queries> queries = mapperQuery.toModelFromYaml(data.getQueries(),user);
+
+			if (databases == null) {
+				throw new IllegalArgumentException("One of databases has already existed");
+			}
+			if (metrics == null) {
+				throw new IllegalArgumentException("One of metrics has already existed");
+			}
+			if (queries == null) {
+				throw new IllegalArgumentException("One of queries has already existed");
+			}
 
 			databaseRepository.saveAll(databases);
 			metricRepository.saveAll(metrics);

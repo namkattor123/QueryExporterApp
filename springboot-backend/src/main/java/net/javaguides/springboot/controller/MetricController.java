@@ -105,7 +105,7 @@ public class MetricController {
 	@GetMapping("/metrics/yaml")
 	public Map<String, MetricYaml> getMetricYaml() {
 		List<Metric> allMetrics = metricRepository.findAll();
-		MetricMapper mapper = new MetricMapper();
+		MetricMapper mapper = new MetricMapper(metricRepository);
 		return mapper.toYamlMap(allMetrics);
 	}
 	

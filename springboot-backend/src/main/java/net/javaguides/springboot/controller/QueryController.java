@@ -168,7 +168,7 @@ public class QueryController {
 
 		ObjectMapper objectMapper = new ObjectMapper(yamlFactory);
 		List<Queries> allQueries = queryRepository.findAll();
-		QueryMapper mapperQuery = new QueryMapper();
+		QueryMapper mapperQuery = new QueryMapper(queryRepository);
 		Map<String,Map<String, Object>> queryMap = new HashMap<String, Map<String, Object>>();
 		Map<String,Object> testDBMap = new HashMap<String, Object>();
 		queryMap = mapperQuery.toYamlMapAdd(allQueries);

@@ -3,10 +3,19 @@ package net.javaguides.springboot.mapper;
 import net.javaguides.springboot.dto.QueryYaml;
 import net.javaguides.springboot.model.Queries;
 import net.javaguides.springboot.model.UserEntity;
+import net.javaguides.springboot.repository.QueryRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
 public class QueryMapper {
+    @Autowired
+    private QueryRepository queryRepo;
+
+    public QueryMapper (QueryRepository queryRepo) {
+        this.queryRepo = queryRepo;
+    }
+
     public static QueryYaml toYamlModel(Queries query) {
         QueryYaml queryYaml = new QueryYaml();
         queryYaml.setInterval(query.getInterval());
@@ -59,7 +68,12 @@ public class QueryMapper {
             Queries query = new Queries();
             Map<String,Object> value = listQueryMap.get(key);
             System.out.println("Key: " + key + ", Value: " + value);
+
+            if (!queryRepo.findByUsernameFromJoinedTables(user.getUsername()).isEmpty()) {
+                return null;
+            }
             query.setName(key);
+
             if(value.containsKey("interval")){
                 query.setInterval(Integer.parseInt(value.get("interval").toString()));
             }

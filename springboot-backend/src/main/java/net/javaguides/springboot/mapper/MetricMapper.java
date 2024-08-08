@@ -6,10 +6,19 @@ import net.javaguides.springboot.model.Metric;
 import net.javaguides.springboot.model.Metric;
 import net.javaguides.springboot.model.Metric;
 import net.javaguides.springboot.model.UserEntity;
+import net.javaguides.springboot.repository.MetricRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
 public class MetricMapper {
+    @Autowired
+    private MetricRepository metricRepo;
+
+    public MetricMapper (MetricRepository metricRepo) {
+        this.metricRepo = metricRepo;
+    }
+
     public static MetricYaml toYamlModel(Metric metric){
         MetricYaml metricYaml = new MetricYaml();
         metricYaml.setType(metric.getType());
@@ -66,7 +75,12 @@ public class MetricMapper {
             Metric metric = new Metric();
             Map<String,Object> value = listMetricMap.get(key);
             System.out.println("Key: " + key + ", Value: " + value);
+
+            if (!metricRepo.findByUsernameFromJoinedTables(user.getUsername()).isEmpty()) {
+                return null;
+            }
             metric.setName(key);
+
             if(value.containsKey("type")){
                 metric.setType(value.get("type").toString());
             }

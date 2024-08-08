@@ -1,16 +1,22 @@
 package net.javaguides.springboot.mapper;
 
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.viettel.security.PassTranformer;
 import net.javaguides.springboot.model.Database;
 import net.javaguides.springboot.model.UserEntity;
-import org.springframework.http.ResponseEntity;
+import net.javaguides.springboot.repository.DatabaseRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.*;
 
 public class DatabaseMapper {
+    @Autowired
+    private DatabaseRepository databaseRepo;
+
+    public DatabaseMapper (DatabaseRepository databaseRepo) {
+        this.databaseRepo = databaseRepo;
+    }
+
     public Map<String,Map<String,Object>>toYamlMapAdd(List<Database> databases){
         Map<String,Map<String,Object>> dbMap = new LinkedHashMap<String,Map<String,Object>>();
         for(int i =0 ; i < databases.size() ; i++ ){
@@ -48,6 +54,9 @@ public class DatabaseMapper {
                 Database db = new Database();
                 Map<String,Object> value = listDBMap.get(key);
                 System.out.println("Key: " + key + ", Value: " + value);
+                if (!databaseRepo.findByUsernameFromJoinedTables(user.getUsername()).isEmpty()) {
+                    return null;
+                }
                 db.setName(key);
                 if(value.containsKey("dsn")){
                     if (value.get("dsn") instanceof LinkedHashMap) {

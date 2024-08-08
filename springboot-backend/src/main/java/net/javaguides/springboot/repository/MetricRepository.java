@@ -5,10 +5,12 @@ import net.javaguides.springboot.model.Metric;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
+@Repository
 public interface MetricRepository extends JpaRepository<Metric, Long> {
    Metric findByName(String metrics);
    @Query(value = "SELECT m.id,m.name,m.type,m.description,m.labels,m.buckets,m.states,m.expiration,m.increment,m.user_id\n" +
