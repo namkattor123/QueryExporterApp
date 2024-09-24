@@ -45,7 +45,7 @@ public class DatabaseController {
 	
 	// create database rest api
 	@PostMapping("/databases")
-	public Database createDatabase(@RequestHeader("Authorization") String authorizationHeader,@RequestBody DatabaseDTO databaseDTO) throws Exception {
+	public Database createDatabase(@RequestHeader("Authorization") String authorizationHeader, @RequestBody DatabaseDTO databaseDTO) throws Exception {
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
 		}
