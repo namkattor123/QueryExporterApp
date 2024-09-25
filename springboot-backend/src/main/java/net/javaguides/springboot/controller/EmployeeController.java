@@ -42,7 +42,6 @@ import org.yaml.snakeyaml.representer.Representer;
 @RestController
 @RequestMapping("/api/v1")
 public class EmployeeController {
-
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
