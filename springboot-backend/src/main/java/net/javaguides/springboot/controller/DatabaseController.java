@@ -70,8 +70,9 @@ public class DatabaseController {
 		database.setHostName(split[3]);
 		database.setName(split[5]);
 		database.setServiceCode(databaseDTO.getServiceCode());
-		database.setAutoCommit(databaseDTO.autoCommit);
-		database.setKeepConnect(databaseDTO.keepConnect);
+		database.setAutoCommit(databaseDTO.getAutoCommit());
+		database.setConnectSQL(databaseDTO.getConnectSQL());
+		database.setKeepConnect(databaseDTO.getKeepConnect());
 		UserEntity user = userRepository.findByUsername(username).get();
 		database.setUser(user);
 		return databaseRepository.save(database);

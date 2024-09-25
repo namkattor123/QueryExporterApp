@@ -6,33 +6,19 @@ public class DatabaseDTO {
     public String serviceCode;
 
     public String label;
+    public String connectSQL;
 
     public String autoCommit;
 
     public String keepConnect;
 
-    public DatabaseDTO(long id, String link, String serviceCode, String label, String autoCommit, String keepConnect) {
+    public DatabaseDTO(long id, String link, String serviceCode, String label, String connectSQL, String autoCommit, String keepConnect) {
         this.id = id;
         this.link = link;
         this.serviceCode = serviceCode;
         this.label = label;
+        this.connectSQL = connectSQL;
         this.autoCommit = autoCommit;
-        this.keepConnect = keepConnect;
-    }
-
-    public String getAutoCommit() {
-        return autoCommit;
-    }
-
-    public void setAutoCommit(String autoCommit) {
-        this.autoCommit = autoCommit;
-    }
-
-    public String getKeepConnect() {
-        return keepConnect;
-    }
-
-    public void setKeepConnect(String keepConnect) {
         this.keepConnect = keepConnect;
     }
 
@@ -66,5 +52,29 @@ public class DatabaseDTO {
 
     public void setLabel(String label) {
         this.label = label;
+    }
+
+    public String getConnectSQL() {
+        return connectSQL;
+    }
+
+    public void setConnectSQL(String connectSQL) {
+        this.connectSQL = connectSQL;
+    }
+
+    public String getAutoCommit() {
+        return autoCommit;
+    }
+
+    public void setAutoCommit(String autoCommit) {
+        this.autoCommit = autoCommit;
+    }
+
+    public String getKeepConnect() {
+        return keepConnect;
+    }
+
+    public void setKeepConnect(String keepConnect) {
+        this.keepConnect = keepConnect;
     }
 }

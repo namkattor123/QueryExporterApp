@@ -131,29 +131,17 @@ public class EmployeeController {
 		return yamlData;
 	}
 	@GetMapping("/home")
-	public List<HomeDTO> homeView(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
-
+	public HomeDTO homeView(@RequestHeader("Authorization") String authorizationHeader) throws IOException {
 		if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
 			authorizationHeader = authorizationHeader.substring(7); // Skip "Bearer " prefix
 		}
 		String username = tokenGenerator.getUsernameFromJWT(authorizationHeader);
 
-//		List<Database> allDBbyUser = databaseRepository.findByUsernameFromJoinedTables(username);
-//		List<Metric> allMetricByUser = metricRepository.findByUsernameFromJoinedTables(username);
-//		List<Queries> allQueriesByUser = queryRepository.findByUsernameFromJoinedTables(username);
-//		long allDBs = databaseRepository.count();
-//		long allMetrics = metricRepository.count();
-//		long allQueries = queryRepository.count();
-//		HomeDTO homeData = new HomeDTO(allDBbyUser.size(), allMetricByUser.size(),allQueriesByUser.size(),allDBs,allMetrics,allQueries);
+		List<Database> allDBbyUser = databaseRepository.findByUsernameFromJoinedTables(username);
+		List<Metric> allMetricByUser = metricRepository.findByUsernameFromJoinedTables(username);
+		List<Queries> allQueriesByUser = queryRepository.findByUsernameFromJoinedTables(username);
+		HomeDTO data = new HomeDTO(allDBbyUser, allQueriesByUser, allMetricByUser);
 
-		List<UserEntity> users = userRepository.findAll();
-		List<HomeDTO> data = new ArrayList<>();
-		for (UserEntity user : users) {
-			List<Database> allDBbyUser = databaseRepository.findByUsernameFromJoinedTables(user.getUsername());
-			List<Metric> allMetricByUser = metricRepository.findByUsernameFromJoinedTables(user.getUsername());
-			List<Queries> allQueriesByUser = queryRepository.findByUsernameFromJoinedTables(user.getUsername());
-			data.add(new HomeDTO(user.getUsername(), allDBbyUser.size(), allMetricByUser.size(), allQueriesByUser.size()));
-		}
 		return data;
 	}
 	@PostMapping("/upload-yaml")
