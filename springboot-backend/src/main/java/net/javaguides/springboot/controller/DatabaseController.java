@@ -86,19 +86,23 @@ public class DatabaseController {
 				.orElseThrow(() -> new ResourceNotFoundException("Database not exist with id :" + id));
 		return ResponseEntity.ok(database);
 	}
+
 	// update database rest api
-	
 	@PutMapping("/databases/{id}")
-	public ResponseEntity<Database> updateDatabase(@PathVariable Long id, @RequestBody Database databaseDetails) throws Exception {
+	public ResponseEntity<Database> updateDatabase(@PathVariable Long id, @RequestBody DatabaseDTO databaseDetails) throws Exception {
 		Database database = databaseRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("Database not exist with id :" + id));
 		LOGGER.info("Update Database by ID : ", id);
+
+		System.out.println("connectSQL: " + database.getConnectSQL());
+
 		String [] split = databaseDetails.getLink().split("://|@|:|/");
 		database.setDsn( PassTranformer.encrypt(databaseDetails.getLink()));
 		database.setLabel(databaseDetails.getLabel());
 		database.setLink(databaseDetails.getLink());
 		database.setHostName(split[3]);
 		database.setName(split[5]);
+		database.setConnectSQL(databaseDetails.getConnectSQL());
 		database.setAutoCommit(databaseDetails.getAutoCommit());
 		database.setKeepConnect(databaseDetails.getKeepConnect());
 		database.setServiceCode(databaseDetails.getServiceCode());

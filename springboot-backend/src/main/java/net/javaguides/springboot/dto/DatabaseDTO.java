@@ -1,16 +1,13 @@
 package net.javaguides.springboot.dto;
 
 public class DatabaseDTO {
-    public long id;
-    public String link;
-    public String serviceCode;
-
-    public String label;
-    public String connectSQL;
-
-    public String autoCommit;
-
-    public String keepConnect;
+    private long id;
+    private String link;
+    private String serviceCode;
+    private String label;
+    private String connectSQL;
+    private String autoCommit;
+    private String keepConnect;
 
     public DatabaseDTO(long id, String link, String serviceCode, String label, String connectSQL, String autoCommit, String keepConnect) {
         this.id = id;
