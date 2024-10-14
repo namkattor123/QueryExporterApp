@@ -2,7 +2,7 @@ import { Col, Form, Input, Modal, Row, Select, notification } from "antd";
 import React, { useEffect, useState } from "react";
 import QueryService from "../../../services/QueryService";
 import { convertToSelectOption, filterData, openNotification } from "../../../utils";
-import { sqlKeywords } from "../../../const";
+import { sqlKeywords, timeRegex } from "../../../const";
 
 const QueryModal = (props) => { // queriesState, setQueriesState
     const [form] = Form.useForm();
@@ -115,6 +115,16 @@ const QueryModal = (props) => { // queriesState, setQueriesState
                         <Form.Item 
                             label="Interval:"
                             name="interval"
+                            rules={[
+                                () => ({
+                                    validator(_, value) {
+                                        if (value.length > 0 && !value.match(timeRegex)) {
+                                            return Promise.reject(new Error('Invalid interval'));
+                                        }
+                                        return Promise.resolve();
+                                    },
+                                }),
+                            ]}
                         >
                             <Input value={query?.interval} placeholder="Interval" disabled={!editable}/>
                         </Form.Item>
@@ -127,7 +137,7 @@ const QueryModal = (props) => { // queriesState, setQueriesState
                             <Input value={query?.timeout} placeholder="Timeout" disabled={!editable}/>
                         </Form.Item>
                     </Col>
-                    <Col span={24}>
+                    <Col span={12}>
                         <Form.Item 
                             label="Metrics:"
                             name="metrics"
@@ -148,7 +158,7 @@ const QueryModal = (props) => { // queriesState, setQueriesState
                             />
                         </Form.Item>
                     </Col>
-                    <Col span={24}>
+                    <Col span={12}>
                         <Form.Item 
                             label="Databases:"
                             name="databases"

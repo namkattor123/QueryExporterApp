@@ -1,7 +1,7 @@
 import { Col, Form, Input, Modal, Row, Select, notification } from "antd";
 import React, { useEffect, useState } from "react";
 import MetricService from "../../../services/MetricService";
-import { metricType } from "../../../const";
+import { metricType, timeRegex } from "../../../const";
 import { openNotification } from "../../../utils";
 
 const MetricModal = (props) => { // metricsState, setMetricsState
@@ -151,6 +151,16 @@ const MetricModal = (props) => { // metricsState, setMetricsState
                         <Form.Item 
                             label="Expiration:"
                             name="expiration"
+                            rules={[
+                                () => ({
+                                    validator(_, value) {
+                                        if (value.length > 0 && !value.match(timeRegex)) {
+                                            return Promise.reject(new Error('Invalid expiration'));
+                                        }
+                                        return Promise.resolve();
+                                    },
+                                }),
+                            ]}
                         >
                             <Input value={metric?.expiration} placeholder="Expiration" disabled={!editable}/>
                         </Form.Item>
