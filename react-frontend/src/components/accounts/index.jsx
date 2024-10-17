@@ -137,10 +137,10 @@ const ListUserComponent = () => {
         try {
             const promiseArr = new Array();
             if (id) {
-                await deleteUser(id, localStorage.getItem('token'));
+                await deleteUser(id);
             } else {
                 for (let i = 0; i < selectedRows.length; i++) {
-                    promiseArr.push(deleteUser(selectedRows[i] ,localStorage.getItem('token')));
+                    promiseArr.push(deleteUser(selectedRows[i]));
                 }
                 await Promise.all(promiseArr);
             }
@@ -157,7 +157,7 @@ const ListUserComponent = () => {
 
     useEffect(() => {
         try {
-            getUsers(localStorage.getItem('token')).then((res) => {
+            getUsers().then((res) => {
                 setState({ 
                     ...state, 
                     data: res.data,

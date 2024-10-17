@@ -122,7 +122,7 @@ const ListDatabaseComponent = () => {
     ]
 
     const handleUpdateDatabase = async (value, databaseId) => {
-        await DatabaseService.updateDatabase(value, databaseId, localStorage.getItem('token'))
+        await DatabaseService.updateDatabase(value, databaseId)
         setState({
             ...state, 
             refresh: !state.refresh,
@@ -133,10 +133,10 @@ const ListDatabaseComponent = () => {
         try {
             const promiseArr = new Array();
             if (id) {
-                await DatabaseService.deleteDatabase(id, localStorage.getItem('token'));
+                await DatabaseService.deleteDatabase(id);
             } else {
                 for (let i = 0; i < selectedRows.length; i++) {
-                    promiseArr.push(DatabaseService.deleteDatabase(selectedRows[i], localStorage.getItem('token')));
+                    promiseArr.push(DatabaseService.deleteDatabase(selectedRows[i]));
                 }
                 await Promise.all(promiseArr);
             }
@@ -194,7 +194,7 @@ const ListDatabaseComponent = () => {
 
     useEffect(() => {
         try {
-            DatabaseService.getDatabases(localStorage.getItem('token')).then((res) => {
+            DatabaseService.getDatabases().then((res) => {
                 setState({
                     ...state, 
                     data: res.data,

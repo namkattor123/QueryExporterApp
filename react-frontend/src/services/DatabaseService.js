@@ -3,34 +3,34 @@ import { headers } from '../utils';
 const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
 class DatabaseService {
 
-  getDatabases(token) {
+  getDatabases() {
     return axios.get(`${apiBaseUrl}/databases`, {
-      headers: headers(token)
+      headers: headers()
     });
   }
 
-  createDatabase(database, token) {
+  createDatabase(database) {
     return axios.post(`${apiBaseUrl}/databases`, database, {
-      headers: headers(token)
+      headers: headers()
     });
   }
 
-  getDatabaseById(databaseId, token) {
+  getDatabaseById(databaseId) {
     return axios.get(`${apiBaseUrl}/databases/${databaseId}`, {
-      headers: headers(token)
+      headers: headers()
 
     });
   }
 
-  updateDatabase(database, databaseId, token) {
+  updateDatabase(database, databaseId) {
     return axios.put(`${apiBaseUrl}/databases/${databaseId}`, database, {
-      headers: headers(token)
+      headers: headers()
     });
   }
 
-  deleteDatabase(databaseId, token) {
+  deleteDatabase(databaseId) {
     return axios.delete(`${apiBaseUrl}/databases/${databaseId}`, {
-      headers: headers(token)
+      headers: headers()
     });
   }
 }

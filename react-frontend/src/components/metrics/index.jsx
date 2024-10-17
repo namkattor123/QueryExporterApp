@@ -97,10 +97,10 @@ const ListMetricComponent = () => {
         try {
             const promiseArr = new Array();
             if (id) {
-                await MetricService.deleteMetric(id, localStorage.getItem('token'));
+                await MetricService.deleteMetric(id);
             } else {
                 for (let i = 0; i < selectedRows.length; i++) {
-                    promiseArr.push(MetricService.deleteMetric(selectedRows[i] ,localStorage.getItem('token')));
+                    promiseArr.push(MetricService.deleteMetric(selectedRows[i]));
                 }
                 await Promise.all(promiseArr);
             }
@@ -158,7 +158,7 @@ const ListMetricComponent = () => {
 
     useEffect(() => {
         try {
-            MetricService.getMetrics(localStorage.getItem('token')).then((res) => {
+            MetricService.getMetrics().then((res) => {
                 setState({ 
                     ...state, 
                     data: res.data,

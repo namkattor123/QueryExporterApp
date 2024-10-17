@@ -9,7 +9,10 @@ import { linkDbRegex } from "../../../const";
 
 const DatabaseModal = (props) => { // databasesState, setDatabasesState
     const [form] = Form.useForm();
-    const [database, setDatabase] = useState();
+    const [database, setDatabase] = useState({
+        autoCommit: "false",
+        keepConnect: "false",
+    });
     const [selectedRows, setSelectedRows] = useState([]);
     const [labels, setLabels] = useState([]);
     const [lableModalOpen, setLabelModalOpen] = useState(false);
@@ -42,10 +45,10 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
                 label: convertKeyValueToString(labels)
             };
             if (databaseSelected) {
-                await DatabaseService.updateDatabase(sendValue, database?.id, localStorage.getItem('token'));
+                await DatabaseService.updateDatabase(sendValue, database?.id);
                 openNotification(api, "success", "Succeed", "Database updated successfully!");
             } else {
-                await DatabaseService.createDatabase(sendValue, localStorage.getItem('token'));
+                await DatabaseService.createDatabase(sendValue);
                 openNotification(api, "success", "Succeed", "Database created successfully!");
             }
         } catch (err) {
@@ -84,7 +87,7 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
     useEffect(() => {
         try {
             if (databaseSelected) {
-                DatabaseService.getDatabaseById(databaseSelected,localStorage.getItem('token')).then( res => {
+                DatabaseService.getDatabaseById(databaseSelected).then( res => {
                     setDatabase({...res.data});
                     form.setFieldsValue({
                         link: res.data?.link,
@@ -128,6 +131,7 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
                             label="Link:"
                             name="link"
                             placeholder="Link"
+                            hidden={databaseSelected && editable}
                             rules={[
                                 {
                                   required: true,
@@ -135,7 +139,7 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
                                 },
                                 () => ({
                                     validator(_, value) {
-                                        if (!value) {
+                                        if (!value || databaseSelected) {
                                             return Promise.resolve();
                                         }
                                         if (!linkDbRegex.test(value)) {
@@ -208,6 +212,7 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
                             label="Keep connect:"
                             name="keepConnect"    
                             placeholder="Keep connect"
+                            initialValue={"false"}
                         >
                             <Radio.Group onChange={onChange} value={database?.keepConnect} disabled={!editable}>
                                 <Radio value={"true"}>True</Radio>
@@ -220,6 +225,7 @@ const DatabaseModal = (props) => { // databasesState, setDatabasesState
                             label="Auto commit:"
                             name="autoCommit"
                             placeholder="Auto commit"
+                            initialValue={"false"}
                         >
                             <Radio.Group onChange={onChange} value={database?.autoCommit} disabled={!editable}>
                                 <Radio value={"true"}>True</Radio>

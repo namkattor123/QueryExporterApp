@@ -5,33 +5,39 @@ const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
 
 class MetricService {
 
-    getMetrics(token){
+    getMetrics(){
         return axios.get(`${apiBaseUrl}/metrics`,{
-          headers: headers(token)
+          headers: headers()
       });
     }
 
-    createMetric(metric, token){
+    createMetric(metric){
         return axios.post(`${apiBaseUrl}/metrics`, metric,{
-          headers: headers(token)
+          headers: headers()
       });
     }
 
-    getMetricById(metricId, token){
+    getMetricById(metricId){
         return axios.get(`${apiBaseUrl}/metrics/${metricId}`,{
-          headers: headers(token)
+          headers: headers()
       });
     }
 
-    updateMetric(metric, metricId, token){
+    getMetricByName(name){
+      return axios.get(`${apiBaseUrl}/metric/?name=${name}`,{
+        headers: headers()
+    });
+  }
+
+    updateMetric(metric, metricId){
         return axios.put(`${apiBaseUrl}/metrics/${metricId}`, metric,{
-          headers: headers(token)
+          headers: headers()
       });
     }
 
-    deleteMetric(metricId, token){
+    deleteMetric(metricId){
         return axios.delete(`${apiBaseUrl}/metrics/${metricId}`,{
-          headers: headers(token)
+          headers: headers()
       });
     }
 }

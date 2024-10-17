@@ -16,10 +16,10 @@ const MetricModal = (props) => { // metricsState, setMetricsState
     const handleFormSubmit = async (value) => {
         try {
             if (metricSelected) {
-                await MetricService.updateMetric(value, metric?.id, localStorage.getItem('token'));
+                await MetricService.updateMetric(value, metric?.id);
                 openNotification(api, "success", "Succeed", "Metric updated successfully!");
             } else {
-                await MetricService.createMetric(value, localStorage.getItem('token'));
+                await MetricService.createMetric(value);
                 openNotification(api, "success", "Succeed", "Metric created successfully!");
             }
         } catch (err) {
@@ -40,7 +40,7 @@ const MetricModal = (props) => { // metricsState, setMetricsState
     useEffect(() => {
         try {
             if (metricSelected) {
-                MetricService.getMetricById(metricSelected,localStorage.getItem('token')).then( res => {
+                MetricService.getMetricById(metricSelected).then( res => {
                     setMetric({...res.data});
                     form.setFieldsValue({
                         name: res.data?.name,
@@ -154,6 +154,7 @@ const MetricModal = (props) => { // metricsState, setMetricsState
                             rules={[
                                 () => ({
                                     validator(_, value) {
+                                        if (value == null) return Promise.resolve();
                                         if (value.length > 0 && !value.match(timeRegex)) {
                                             return Promise.reject(new Error('Invalid expiration'));
                                         }

@@ -16,7 +16,7 @@ const HomeComponent = () => {
   const token = localStorage.getItem('token');
 
   useEffect(() => {
-    HomeService.homeView(localStorage.getItem('token')).then((res) => {
+    HomeService.homeView().then((res) => {
       setState({
         ...state,
         data: res.data

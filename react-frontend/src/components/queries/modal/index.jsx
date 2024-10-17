@@ -1,12 +1,17 @@
 import { Col, Form, Input, Modal, Row, Select, notification } from "antd";
 import React, { useEffect, useState } from "react";
 import QueryService from "../../../services/QueryService";
-import { convertToSelectOption, filterData, openNotification } from "../../../utils";
-import { sqlKeywords, timeRegex } from "../../../const";
+import { convertToSelectOption, filterData, openNotification, validateSQLContainMetricLabels, validateSQLContainMetricName } from "../../../utils";
+import { crontabRegex, sqlKeywords, timeRegex } from "../../../const";
+import MetricService from "../../../services/MetricService";
 
 const QueryModal = (props) => { // queriesState, setQueriesState
     const [form] = Form.useForm();
-    const [query, setQuery] = useState();
+    const [metrics, setMetrics] = useState([]);
+    const [query, setQuery] = useState({
+        interval: 60,
+        timeout: 60
+    });
 
     const {editable, querySelected, isQueryModalOpen, refresh} = props?.queriesState;
     const {databaseList, metricList, setQueriesState, queriesState} = props;
@@ -21,10 +26,10 @@ const QueryModal = (props) => { // queriesState, setQueriesState
                 metrics: filterData(value.metrics, metricList),
             }
             if (querySelected) {
-                await QueryService.updateQuery(sendData, query?.id, localStorage.getItem('token'));
+                await QueryService.updateQuery(sendData, query?.id);
                 openNotification(api, "success", "Succeed", "Query updated successfully!");
             } else {
-                await QueryService.createQuery(sendData, localStorage.getItem('token'));
+                await QueryService.createQuery(sendData);
                 openNotification(api, "success", "Succeed", "Query created successfully!");
             }
         } catch (err) {
@@ -52,7 +57,7 @@ const QueryModal = (props) => { // queriesState, setQueriesState
     useEffect(() => {
         try {
             if (querySelected) {
-                QueryService.getQueryById(querySelected, localStorage.getItem('token')).then( res => {
+                QueryService.getQueryById(querySelected).then( res => {
                     setQuery({
                         ...res.data,
                         metrics: res.data?.metrics.split(/[, ]+/),
@@ -68,6 +73,11 @@ const QueryModal = (props) => { // queriesState, setQueriesState
                         parameters: res.data?.parameters,
                         schedule: res.data?.schedule,
                     })  
+                })
+                MetricService.getMetrics().then( res => {
+                    setMetrics({
+                        ...res.data,
+                    });
                 })
             }
         } catch (error) {
@@ -115,11 +125,16 @@ const QueryModal = (props) => { // queriesState, setQueriesState
                         <Form.Item 
                             label="Interval:"
                             name="interval"
+                            initialValue={60}
                             rules={[
+                                {
+                                    required: true,
+                                    message: "Interval is required!",
+                                },
                                 () => ({
                                     validator(_, value) {
                                         if (value.length > 0 && !value.match(timeRegex)) {
-                                            return Promise.reject(new Error('Invalid interval'));
+                                            return Promise.reject(new Error('Invalid interval.'));
                                         }
                                         return Promise.resolve();
                                     },
@@ -133,6 +148,13 @@ const QueryModal = (props) => { // queriesState, setQueriesState
                         <Form.Item 
                             label="Timeout:"
                             name="timeout"
+                            initialValue={60}
+                            rules={[
+                                {
+                                    required: true,
+                                    message: "Timeout is required!",
+                                }
+                            ]}
                         >
                             <Input value={query?.timeout} placeholder="Timeout" disabled={!editable}/>
                         </Form.Item>
@@ -189,13 +211,15 @@ const QueryModal = (props) => { // queriesState, setQueriesState
                                   message: "SQL is required!",
                                 },
                                 () => ({
-                                    validator(_, value) {
-                                        if (sqlKeywords.some(keyword => value.toUpperCase().includes(keyword))) {
+                                    async validator(_, value) {
+                                        if (sqlKeywords.some(keyword => value.toUpperCase().includes(keyword)))
                                             return Promise.reject(new Error('SQL must not contain INSERT, UPDATE, DELETE, COMMIT!'));
-                                        }
-                                        else if (!value.trim().endsWith(';')){
-                                            return Promise.reject(new Error('SQL must have semicolor at the end'));
-                                        }
+                                        else if (!value.trim().endsWith(';'))
+                                            return Promise.reject(new Error('SQL must have semicolor at the end.'));
+                                        else if (!validateSQLContainMetricName(value, query.metrics))
+                                            return Promise.reject(new Error(`SQL must contain metric's name.`));
+                                        else if (!(await validateSQLContainMetricLabels(value, query.metrics, metrics)))
+                                            return Promise.reject(new Error(`SQL must contain metric's labels.`));
                                         return Promise.resolve();
                                     },
                                 }),
@@ -221,6 +245,16 @@ const QueryModal = (props) => { // queriesState, setQueriesState
                         <Form.Item 
                             label="Schedule:"
                             name="schedule"
+                            rules={[
+                                () => ({
+                                    async validator(_, value) {
+                                        if (value == null) return Promise.resolve();
+                                        if (!value.match(crontabRegex))
+                                            return Promise.reject(new Error('Schedule must follow crontab format.'));
+                                        return Promise.resolve();
+                                    },
+                                }),
+                            ]}
                         >
                             <Input value={query?.schedule} placeholder="Schedule" disabled={!editable}/>
                         </Form.Item>

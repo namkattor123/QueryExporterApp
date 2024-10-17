@@ -91,10 +91,10 @@ const ListQueryComponent = () => {
         try {
             const promiseArr = new Array();
             if (id) {
-                await QueryService.deleteQuery(id, localStorage.getItem('token'));
+                await QueryService.deleteQuery(id);
             } else {
                 for (let i = 0; i < selectedRows.length; i++) {
-                    promiseArr.push(QueryService.deleteQuery(selectedRows[i] ,localStorage.getItem('token')));
+                    promiseArr.push(QueryService.deleteQuery(selectedRows[i]));
                 }
                 await Promise.all(promiseArr);
             }
@@ -149,17 +149,17 @@ const ListQueryComponent = () => {
     };
 
     useEffect(() => {
-        DatabaseService.getDatabases(localStorage.getItem('token')).then((res) => {
+        DatabaseService.getDatabases().then((res) => {
             setDatabaseList(res.data);
         });
-        MetricService.getMetrics(localStorage.getItem('token')).then((res) => {
+        MetricService.getMetrics().then((res) => {
             setMetricList(res.data);
         });
     }, [])
 
     useEffect(() => {
         try {
-            QueryService.getQueries(localStorage.getItem('token')).then((res) => {
+            QueryService.getQueries().then((res) => {
                 setState({ 
                     ...state,
                     data: res.data,

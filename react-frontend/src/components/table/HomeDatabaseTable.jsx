@@ -16,13 +16,7 @@ const HomeDatabaseTable = (props) => {
             dataIndex: 'link',
             width: 60,
             render: (_, record) => <RenderTextInTable data={record.link} />
-        },
-        {
-            title: 'Dsn',
-            dataIndex: 'dsn',
-            width: 60,
-            render: (_, record) => <RenderTextInTable data={record.dsn} />
-        },
+        }
     ]
 
     return (

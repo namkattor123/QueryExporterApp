@@ -5,33 +5,33 @@ const apiBaseUrl = process.env.REACT_APP_API_BASE_URL;
 
 class QueryService {
 
-    getQueries(token){
+    getQueries(){
         return axios.get(`${apiBaseUrl}/queries`,{
-          headers: headers(token)
+          headers: headers()
         });
     }
 
-    createQuery(query,token){
+    createQuery(query,){
         return axios.post(`${apiBaseUrl}/queries/test`, query,{
-          headers: headers(token)
+          headers: headers()
         });
     }
 
-    getQueryById(queryId, token){
+    getQueryById(queryId){
         return axios.get(`${apiBaseUrl}/queries/${queryId}`,{
-          headers: headers(token)
+          headers: headers()
         });
     }
 
-    updateQuery(query, queryId, token){
+    updateQuery(query, queryId){
         return axios.put(`${apiBaseUrl}/queries/${queryId}`, query,{
-          headers: headers(token)
+          headers: headers()
         });
     }
 
-    deleteQuery(queryId, token){
+    deleteQuery(queryId){
         return axios.delete(`${apiBaseUrl}/queries/${queryId}`,{
-          headers: headers(token)
+          headers: headers()
         });
     }
 }

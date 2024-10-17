@@ -17,10 +17,10 @@ const UserModal = (props) => { // usersState, setUsersState
     const handleOk = async (value) => {
         try {
             if (userSelected) {
-                await updateUser(value, user?.id, localStorage.getItem('token'));
+                await updateUser(value, user?.id);
                 openNotification(api, "success", "Succeed", "Account updated successfully!");
             } else {
-                await registerUser(value, localStorage.getItem('token'));
+                await registerUser(value);
                 openNotification(api, "success", "Succeed", "Account created successfully!");
             }
         } catch (err) {
@@ -41,7 +41,7 @@ const UserModal = (props) => { // usersState, setUsersState
     useEffect(() => {
         try {
             if (userSelected) {
-                getUserById(userSelected, localStorage.getItem('token')).then( res => {
+                getUserById(userSelected).then( res => {
                     setUser({...res.data});
                     form.setFieldsValue({
                         username: res.data?.username,

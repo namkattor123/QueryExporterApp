@@ -43,6 +43,28 @@ export const convertKeyValueToString = (arr) => {
   return result;
 }
 
+export const validateSQLContainMetricLabels = async (value, queryMetric, metrics) => {
+  for (let idx in metrics) {
+    if (queryMetric.includes(metrics[idx].name)) {
+      const labels = metrics[idx].labels.split(/[, ]+/);
+      for (let i in labels) {
+        if (!value.includes(labels[i]))
+          return false;
+      }
+    }
+  }
+  return true;
+}
+
+export const validateSQLContainMetricName = (value, metrics) => {
+  for (let idx in metrics) {
+    const metric = metrics[idx];
+    if (!value.includes(metric))
+      return false;
+  }
+  return true;
+}
+
 export const convertToSeriesData = (type, usersData) => {
   const data = usersData?.map(item => item[type])
   return {
@@ -59,7 +81,8 @@ export const fileterUsername = (arr) => {
   return arr?.map(item => item.userName);
 }
 
-export const headers = (token) => {
+export const headers = () => {
+  const token = localStorage.getItem('token');
     return {
       'Authorization': `Bearer ${token}`,
       'Content-Type': 'application/json',
